@@ -1,5 +1,7 @@
 # APK Extractor
 
+![APK Extractor feature graphic](docs/feature-graphic.png)
+
 [![Android CI](https://github.com/KoleHoenicke/apk-extractor/actions/workflows/android.yml/badge.svg)](https://github.com/KoleHoenicke/apk-extractor/actions/workflows/android.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
@@ -36,6 +38,10 @@ The debug APK is written beneath `app/build/outputs/apk/debug/`. Release signing
 ## Contributing
 
 Bug reports, accessibility improvements, translations, and focused compatibility fixes are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Security-sensitive reports should follow [SECURITY.md](SECURITY.md).
+
+## Releases
+
+Version history and source archives are available from [GitHub Releases](https://github.com/KoleHoenicke/apk-extractor/releases). Distribution builds are published through Google Play; debug APKs and Play upload bundles are intentionally not presented as end-user releases here.
 
 ## Privacy and package visibility
 
