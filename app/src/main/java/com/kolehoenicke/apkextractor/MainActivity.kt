@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
+    private val inAppReviewCoordinator by lazy { InAppReviewCoordinator(this) }
     private val focusSearchRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     private var packageReceiverRegistered = false
     private var hasStartedOnce = false
@@ -43,6 +44,8 @@ class MainActivity : ComponentActivity() {
                 ApkExtractorApp(
                     viewModel = viewModel,
                     focusSearchRequests = focusSearchRequests,
+                    onSuccessfulExtractionSession =
+                        inAppReviewCoordinator::onSuccessfulExtractionSession,
                 )
             }
         }

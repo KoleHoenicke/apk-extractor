@@ -134,6 +134,7 @@ private val ContentHorizontalPadding = 16.dp
 fun ApkExtractorApp(
     viewModel: MainViewModel,
     focusSearchRequests: Flow<Unit>,
+    onSuccessfulExtractionSession: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -198,6 +199,12 @@ fun ApkExtractorApp(
         viewModel.events.collect { event ->
             when (event) {
                 is UiEvent.ExportFinished -> {
+                    if (event.requestedCount > 0 &&
+                        event.files.size == event.requestedCount &&
+                        event.failures.isEmpty()
+                    ) {
+                        onSuccessfulExtractionSession()
+                    }
                     val message = when {
                         event.files.size == event.requestedCount && event.requestedCount == 1 -> {
                             resources.getString(R.string.export_complete, event.files.single().displayName)

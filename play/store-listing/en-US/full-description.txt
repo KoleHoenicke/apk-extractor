@@ -1,4 +1,4 @@
-APK Extractor is a completely free, ad-free tool for exporting the APK files already installed on your device.
+APK Extractor exports the APK files already installed on your device, including every installed split. It is completely free, ad-free, and open source, with no root or Internet permission.
 
 Tap an app to extract it, or long-press to select and export several apps at once. Conventional installations are saved as individual APK files. Apps installed from multiple APK splits are saved as ZIP archives containing the base APK, every installed split, and a manifest with filenames, split names, sizes, and SHA-256 hashes.
 
@@ -24,6 +24,10 @@ Free and straightforward
 • No Internet permission
 • No data collection or sharing
 • No broad storage permission
+
+Open source
+Read the code, report an issue, or contribute at:
+https://github.com/KoleHoenicke/apk-extractor
 
 APK Extractor uses broad installed-app visibility solely because displaying and exporting any installed app is its core and only purpose. Installed-app information is processed locally and never leaves your device.
 

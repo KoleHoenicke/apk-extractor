@@ -4,4 +4,4 @@ Initial release.
 • Multi-select and concurrent exports
 • Background progress and completion sharing
 • Material 3 Expressive interface with adaptive layouts
-• Fully local, ad-free, and private
+• Free, ad-free, and open source
