@@ -1,0 +1,27 @@
+APK Extractor
+Copyright 2026 Kole Hoenicke
+
+The Android robot is reproduced or modified from work created and shared by
+Google and used according to terms described in the Creative Commons 3.0
+Attribution License.
+
+Android is a trademark of Google LLC.
+
+This product includes Material Symbols created by Google and licensed under
+the Apache License, Version 2.0.
+
+Material Symbols source:
+https://github.com/google/material-design-icons
+
+This product includes icon normalization logic adapted from Android Open
+Source Project Launcher3 and licensed under the Apache License, Version 2.0.
+
+Launcher3 icon normalization source:
+https://android.googlesource.com/platform/frameworks/libs/systemui/+/refs/heads/main/iconloaderlib/src/com/android/launcher3/icons/
+
+This product includes Google Sans Flex created by Google and licensed under
+the SIL Open Font License, Version 1.1. A copy of the license is included at
+licenses/OFL-1.1.txt.
+
+Google Sans Flex source:
+https://fonts.google.com/specimen/Google+Sans+Flex

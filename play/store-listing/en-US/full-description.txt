@@ -1,0 +1,32 @@
+APK Extractor is a completely free, ad-free tool for exporting the APK files already installed on your device.
+
+Tap an app to extract it, or long-press to select and export several apps at once. Conventional installations are saved as individual APK files. Apps installed from multiple APK splits are saved as ZIP archives containing the base APK, every installed split, and a manifest with filenames, split names, sizes, and SHA-256 hashes.
+
+Features
+• Browse user apps, system apps, or every installed app
+• Search by app name or package name
+• Extract one app with a tap
+• Select and extract multiple apps concurrently
+• See individual progress for every export
+• Finish exports in the background with native progress notifications
+• Share completed exports directly from the app or notification
+• Choose any destination supported by Android’s system folder picker
+• Automatic light, dark, and dynamic color themes
+• Adaptive layouts for phones, tablets, foldables, and desktop windows
+• Physical keyboard shortcuts
+
+Free and straightforward
+• Completely free
+• No advertisements
+• No subscriptions
+• No accounts
+• No analytics
+• No Internet permission
+• No data collection or sharing
+• No broad storage permission
+
+APK Extractor uses broad installed-app visibility solely because displaying and exporting any installed app is its core and only purpose. Installed-app information is processed locally and never leaves your device.
+
+Exported files contain the APKs installed for your current device. Split APK archives may be specific to its processor, display density, languages, and installed features. They do not contain the app’s user data and are not the publisher’s original Android App Bundle. Third-party apps remain the property of their respective publishers and should not be redistributed without permission.
+
+The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the Creative Commons 3.0 Attribution License. Android is a trademark of Google LLC.

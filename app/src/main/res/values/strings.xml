@@ -1,0 +1,71 @@
+<resources>
+    <string name="app_name">APK Extractor</string>
+    <string name="search_apps">Search apps</string>
+    <string name="clear_search">Clear search</string>
+    <string name="choose_folder">Choose export folder</string>
+    <string name="change_folder">Change export folder</string>
+    <string name="more_options">More options</string>
+    <string name="privacy_and_licenses">Privacy &amp; licenses</string>
+    <string name="done">Done</string>
+    <string name="privacy_summary">APK Extractor reads the installed-app inventory only to show the apps you can extract. All processing stays on this device. The app has no Internet permission and does not collect, sell, or share data. Your selected export-folder location is stored locally, and exported files are written only to that folder.</string>
+    <string name="android_robot_attribution">The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the Creative Commons 3.0 Attribution License. Android is a trademark of Google LLC.</string>
+    <string name="open_source_attribution">Google Sans Flex is licensed under the SIL Open Font License 1.1. Material Symbols and adapted Android Open Source Project Launcher3 icon-normalization logic are licensed under the Apache License 2.0.</string>
+    <string name="exit_selection">Exit selection</string>
+    <string name="extract_selected">Extract selected apps</string>
+    <string name="extract_app">Extract %1$s</string>
+    <string name="select_app">Select %1$s</string>
+    <string name="deselect_app">Deselect %1$s</string>
+    <string name="retry">Retry</string>
+    <string name="user_apps">User</string>
+    <string name="system_apps">System</string>
+    <string name="all_apps">All</string>
+    <string name="loading_apps">Loading installed apps</string>
+    <string name="no_apps">No apps found</string>
+    <string name="no_apps_detail">Try another search or app filter.</string>
+    <string name="split_apk">Split APK</string>
+    <string name="single_apk">APK</string>
+    <string name="export_complete">Saved %1$s</string>
+    <string name="export_failed">Couldn’t extract %1$s</string>
+    <string name="share">Share</string>
+    <string name="share_apk">Share extracted files</string>
+    <string name="cancel">Cancel</string>
+    <string name="keyboard_shortcuts">APK Extractor</string>
+    <string name="keyboard_shortcut_search">Search apps</string>
+    <string name="keyboard_shortcut_dismiss">Close search or selection</string>
+    <string name="extraction_notification_channel">APK extraction</string>
+    <string name="extraction_notification_channel_description">Progress for APK files being extracted</string>
+    <string name="notification_extracting_app">Extracting %1$s</string>
+    <string name="notification_percent_complete">%1$d%% complete</string>
+    <string name="notification_extraction_finished">Extraction finished</string>
+    <string name="error_app_no_longer_installed">This app is no longer installed.</string>
+    <string name="error_loading_apps">Installed apps couldn’t be loaded.</string>
+    <string name="error_folder_unavailable">The selected folder is no longer available.</string>
+    <string name="error_create_export">The selected folder couldn’t create a file.</string>
+    <string name="error_open_export">The export file couldn’t be opened.</string>
+    <string name="error_start_extraction">Extraction couldn’t be started.</string>
+    <string name="error_unknown">Unknown error</string>
+    <plurals name="app_count">
+        <item quantity="one">%d app</item>
+        <item quantity="other">%d apps</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <plurals name="export_complete_count">
+        <item quantity="one">Saved %d app</item>
+        <item quantity="other">Saved %d apps</item>
+    </plurals>
+    <plurals name="export_failed_count">
+        <item quantity="one">Couldn’t extract %d app</item>
+        <item quantity="other">Couldn’t extract %d apps</item>
+    </plurals>
+    <plurals name="export_partial">
+        <item quantity="one">Saved %1$d of %2$d app</item>
+        <item quantity="other">Saved %1$d of %2$d apps</item>
+    </plurals>
+    <plurals name="notification_extracting_apps">
+        <item quantity="one">Extracting %d app</item>
+        <item quantity="other">Extracting %d apps</item>
+    </plurals>
+</resources>

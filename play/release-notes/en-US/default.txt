@@ -1,0 +1,7 @@
+Initial release.
+
+• Extract installed APK and split APK files
+• Multi-select and concurrent exports
+• Background progress and completion sharing
+• Material 3 Expressive interface with adaptive layouts
+• Fully local, ad-free, and private
