@@ -112,6 +112,7 @@ class AppCatalog(private val context: Context) {
             icon = icon,
             isSystemApp = applicationInfo.flags and systemFlags != 0,
             apkFiles = apkFiles,
+            lastUpdateTime = packageInfo.lastUpdateTime,
         )
     }.getOrNull()
 

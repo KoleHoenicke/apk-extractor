@@ -11,6 +11,10 @@ APK Extractor lists the applications installed on the device and copies their or
 
 Long-pressing an app enters contextual selection mode. Multiple selected apps are exported concurrently with independent per-app progress and one final result message. Exports run in a data-sync foreground service so they can finish while the screen is off or another app is open. Android 16.1 and newer can surface the native progress notification as a promoted Live Update and status-bar chip; older versions receive a standard ongoing progress notification. Finished notifications can share the exported files directly through Android's share sheet.
 
+The folder button shows the selected destination and offers open and change actions. Android's system picker handles folder selection. The overflow menu offers name/recent-update sorting and the most recent export result, including saved files, individual failure reasons, sharing, and retry for failed apps that are still installed.
+
+Exports use at most three concurrent copies and check cancellation while copying. A local journal preserves the most recent result across process restarts and attempts to remove recorded partial files after interruption. File names preserve Unicode letters and marks while respecting common filesystem byte limits.
+
 ## Principles
 
 - Native Jetpack Compose interface using Material 3 Expressive and Google Sans Flex

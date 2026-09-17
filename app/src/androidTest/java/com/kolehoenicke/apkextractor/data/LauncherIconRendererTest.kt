@@ -1,6 +1,7 @@
 package com.kolehoenicke.apkextractor.data
 
 import android.graphics.Canvas
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
@@ -8,6 +9,7 @@ import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -19,6 +21,38 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LauncherIconRendererTest {
     private val resources = InstrumentationRegistry.getInstrumentation().targetContext.resources
+
+    @Test
+    fun oreoCompatibilityDrawsBitmapLayersWithoutCallingAdaptiveDraw() {
+        val pixels = Bitmap.createBitmap(32, 32, Bitmap.Config.ARGB_8888).apply {
+            eraseColor(Color.BLUE)
+        }
+        val icon = object : AdaptiveIconDrawable(
+            ColorDrawable(Color.GREEN), BitmapDrawable(resources, pixels),
+        ) {
+            override fun getConstantState(): ConstantState? = null
+            override fun draw(canvas: Canvas) {
+                error("Oreo must bypass AdaptiveIconDrawable.draw")
+            }
+        }
+        repeat(25) {
+            val result = LauncherIconRenderer.render(icon, resources, IconSize, true)
+            assertEquals(Color.BLUE, result.getPixel(IconSize / 2, IconSize / 2))
+            assertEquals(0, Color.alpha(result.getPixel(0, 0)))
+        }
+    }
+
+    @Test
+    fun oreoCompatibilityPreservesLegacyArtworkScale() {
+        val expected = LauncherIconRenderer.render(SolidDrawable(Color.BLACK), resources, IconSize, false)
+        val actual = LauncherIconRenderer.render(SolidDrawable(Color.BLACK), resources, IconSize, true)
+        // Ignore the antialiased outer mask edge; artwork placement must be identical.
+        for (y in 20 until IconSize - 20) {
+            for (x in 20 until IconSize - 20) {
+                assertEquals("Artwork at $x,$y", expected.getPixel(x, y), actual.getPixel(x, y))
+            }
+        }
+    }
 
     @Test
     fun legacyArtworkIsInsetInsideAWhiteAdaptiveWrapper() {

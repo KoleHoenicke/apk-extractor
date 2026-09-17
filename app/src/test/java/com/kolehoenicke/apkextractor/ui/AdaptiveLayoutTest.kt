@@ -9,6 +9,12 @@ import org.junit.Test
 
 class AdaptiveLayoutTest {
     @Test
+    fun `short landscape windows use full screen search to clear keyboard`() {
+        assertFalse(shouldUseDockedSearch(WindowSizeClass(minWidthDp = 840, minHeightDp = 479)))
+        assertTrue(shouldUseDockedSearch(WindowSizeClass(minWidthDp = 840, minHeightDp = 480)))
+    }
+
+    @Test
     fun `compact windows use full screen search`() {
         assertFalse(shouldUseDockedSearch(WindowSizeClass(minWidthDp = 599, minHeightDp = 800)))
     }

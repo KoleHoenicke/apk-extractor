@@ -24,6 +24,15 @@ class AppFilterTest {
         assertEquals(listOf(systemApp), filterApps(apps, AppFilter.All, "android.package"))
     }
 
+    @Test
+    fun `recent sort keeps newest first and resolves equal timestamps by name`() {
+        val a = userApp.copy(label = "Alpha", lastUpdateTime = 10)
+        val b = userApp.copy(label = "Beta", lastUpdateTime = 20)
+        val c = userApp.copy(label = "Charlie", lastUpdateTime = 20)
+        assertEquals(listOf(b, c, a), sortApps(listOf(c, a, b), AppSort.RecentlyUpdated))
+        assertEquals(listOf(a, b, c), sortApps(listOf(c, a, b), AppSort.Name))
+    }
+
     private fun app(label: String, packageName: String, system: Boolean) = InstalledApp(
         label = label,
         packageName = packageName,

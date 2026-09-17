@@ -11,6 +11,9 @@ import java.security.MessageDigest
 import java.time.Instant
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import com.kolehoenicke.apkextractor.ExportResultStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -22,10 +25,12 @@ data class ExportedFile(
     val uri: Uri,
     val displayName: String,
     val isSplitArchive: Boolean,
+    val appLabel: String = displayName,
 )
 
 class ApkExporter(private val context: Context) {
     private val destinationMutex = Mutex()
+    private val resultStore = ExportResultStore(context)
 
     suspend fun export(
         app: InstalledApp,
@@ -34,7 +39,7 @@ class ApkExporter(private val context: Context) {
     ): ExportedFile = withContext(Dispatchers.IO) {
         val directory = DocumentFile.fromTreeUri(context, outputTree)
             ?.takeIf(DocumentFile::canWrite)
-            ?: error(context.getString(R.string.error_folder_unavailable))
+            ?: throw SecurityException(context.getString(R.string.error_folder_unavailable))
 
         val requestedName = exportFileName(app)
         val mimeType = if (app.isSplit) ZIP_MIME else APK_MIME
@@ -46,6 +51,7 @@ class ApkExporter(private val context: Context) {
         }
 
         try {
+            resultStore.created(app.packageName, document.uri)
             val output = context.contentResolver.openOutputStream(document.uri, "w")
                 ?: error(context.getString(R.string.error_open_export))
             output.use { rawOutput ->
@@ -67,15 +73,21 @@ class ApkExporter(private val context: Context) {
                     }
                 }
             }
+            currentCoroutineContext().ensureActive()
+            val file = ExportedFile(document.uri, document.name ?: displayName, app.isSplit, app.label)
+            resultStore.saved(app.packageName, file)
             onProgress(1f)
-            ExportedFile(document.uri, document.name ?: displayName, app.isSplit)
+            file
         } catch (failure: Throwable) {
-            document.delete()
+            val removed = runCatching { document.delete() }.getOrDefault(false)
+            if (!removed && failure !is kotlinx.coroutines.CancellationException) {
+                throw java.io.IOException(context.getString(R.string.export_failed_partial), failure)
+            }
             throw failure
         }
     }
 
-    private fun writeSplitArchive(
+    private suspend fun writeSplitArchive(
         app: InstalledApp,
         output: ZipOutputStream,
         onProgress: (Float) -> Unit,
@@ -120,7 +132,7 @@ class ApkExporter(private val context: Context) {
         }
     }
 
-    private fun copyFile(
+    private suspend fun copyFile(
         source: File,
         output: java.io.OutputStream,
         totalBytes: Long,
@@ -133,6 +145,7 @@ class ApkExporter(private val context: Context) {
         BufferedInputStream(source.inputStream()).use { input ->
             val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
             while (true) {
+                currentCoroutineContext().ensureActive()
                 val count = input.read(buffer)
                 if (count < 0) break
                 output.write(buffer, 0, count)

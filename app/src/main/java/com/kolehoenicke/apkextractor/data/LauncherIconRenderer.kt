@@ -10,6 +10,7 @@ import android.graphics.Rect
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.InsetDrawable
+import android.os.Build
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import kotlin.math.sqrt
@@ -30,7 +31,12 @@ internal object LauncherIconRenderer {
     private const val LegacyArtworkScale = 0.7f
     private const val MaxSquareAreaFactor = 375f / 576f
 
-    fun render(source: Drawable, resources: Resources, size: Int): Bitmap {
+    fun render(
+        source: Drawable,
+        resources: Resources,
+        size: Int,
+        useOreoCompatibility: Boolean = Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1,
+    ): Bitmap {
         require(size > 0) { "Icon size must be positive" }
 
         val icon = source.constantState?.newDrawable(resources)?.mutate() ?: source.mutate()
@@ -49,11 +55,29 @@ internal object LauncherIconRenderer {
             // Pixel Launcher's current full-bleed path uses the complete output bounds and omits
             // its launcher shadow. AdaptiveIconDrawable itself applies the configured mask.
             displayIcon.setBounds(0, 0, size, size)
-            displayIcon.draw(canvas)
+            if (useOreoCompatibility) {
+                drawOreoIcon(displayIcon, canvas)
+            } else {
+                displayIcon.draw(canvas)
+            }
         } finally {
             displayIcon.bounds = oldBounds
         }
         return bitmap
+    }
+
+    /** Avoid Oreo's AdaptiveIconDrawable bitmap shader/color-space rendering path. */
+    private fun drawOreoIcon(icon: AdaptiveIconDrawable, canvas: Canvas) {
+        val saveCount = canvas.save()
+        try {
+            canvas.clipPath(icon.iconMask)
+            // setBounds above already applies AdaptiveIconDrawable's foreground/background insets.
+            // Drawing the layers directly avoids its intermediate bitmap and BitmapShader.
+            icon.background?.draw(canvas)
+            icon.foreground?.draw(canvas)
+        } finally {
+            canvas.restoreToCount(saveCount)
+        }
     }
 
     private fun wrapLegacyIcon(icon: Drawable): AdaptiveIconDrawable {

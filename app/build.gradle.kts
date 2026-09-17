@@ -16,10 +16,15 @@ android {
         applicationId = "com.kolehoenicke.apkextractor"
         minSdk = 26
         targetSdk = 37
-        versionCode = 2
-        versionName = "1.0.0"
+        versionCode = 5
+        versionName = "1.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    androidResources {
+        generateLocaleConfig = true
+        localeFilters += listOf("en", "es", "pt", "fr", "ar", "fa")
     }
 
     buildFeatures {
@@ -62,13 +67,13 @@ android {
 }
 
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2026.08.00")
+    val composeBom = platform("androidx.compose:compose-bom:2026.09.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.compose.material3:material3:1.5.0-alpha26")
+    implementation("androidx.compose.material3:material3:1.5.0-alpha28")
     implementation("androidx.compose.material3.adaptive:adaptive:1.3.0")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -77,6 +82,11 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
     implementation("com.google.android.play:review:2.0.2")
+    constraints {
+        implementation("androidx.fragment:fragment:1.8.9") {
+            because("Play Review transitively requests Fragment 1.1.0, which Play flags as outdated")
+        }
+    }
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")

@@ -2,6 +2,33 @@
 
 Notable changes to APK Extractor are documented here.
 
+## 1.0.3
+
+- Avoid recursive supporting-text baseline measurement in app rows while retaining native Material list styling.
+- Add Spanish, Portuguese, French, Arabic, and Persian with native Android app-language settings and RTL support.
+- Manage the export folder in a compact dialog and choose sorting from a Material submenu.
+- Open export folders from the app where supported by the device.
+- Keep the last export result locally, including individual failures, sharing, and retry for installed apps.
+- Limit simultaneous exports to three and check cancellation while copying.
+- Recover interrupted export results and clean up recorded partial files when possible.
+- Add remembered sorting by name or most recently updated.
+- Preserve international app names and keep export filenames within common filesystem byte limits.
+
+## 1.0.2
+
+- Update Compose to 1.12.1 to fix recursive alignment measurement crashes when scrolling app lists.
+- Bypass Android 8's adaptive-icon bitmap shader when rendering installed-app icons.
+- Update the Fragment dependency pulled in by Google Play Review to 1.8.9.
+- Use the modern edge-to-edge setup on Android 15 and later.
+- Keep search above the keyboard in short landscape windows.
+- Let full-screen search results scroll behind the gesture bar while keeping the final result reachable.
+
+## 1.0.1
+
+- Fix crashes while displaying and scrolling app lists.
+- Show a helpful error when the system folder picker or sharing activity is unavailable.
+- Continue extraction if the notification permission activity cannot open.
+
 ## 1.0.0 — 2026-08-23
 
 Initial open-source release.

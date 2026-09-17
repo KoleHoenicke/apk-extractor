@@ -10,6 +10,7 @@ data class InstalledApp(
     val icon: ImageBitmap?,
     val isSystemApp: Boolean,
     val apkFiles: List<InstalledApk>,
+    val lastUpdateTime: Long = 0,
 ) {
     val isSplit: Boolean get() = apkFiles.size > 1
     val totalBytes: Long get() = apkFiles.sumOf(InstalledApk::bytes)
@@ -46,3 +47,16 @@ fun filterApps(
     }
 }
 
+
+enum class AppSort { Name, RecentlyUpdated }
+
+fun sortApps(apps: List<InstalledApp>, sort: AppSort): List<InstalledApp> {
+    val collator = java.text.Collator.getInstance()
+    val byName = Comparator<InstalledApp> { a, b ->
+        collator.compare(a.label, b.label).takeUnless { it == 0 }
+            ?: a.packageName.compareTo(b.packageName)
+    }
+    return apps.sortedWith(if (sort == AppSort.RecentlyUpdated) {
+        compareByDescending<InstalledApp> { it.lastUpdateTime }.then(byName)
+    } else byName)
+}

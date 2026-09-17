@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">APK Extractor</string>
+    <string name="app_name" translatable="false">APK Extractor</string>
     <string name="search_apps">Search apps</string>
     <string name="clear_search">Clear search</string>
     <string name="choose_folder">Choose export folder</string>
@@ -7,9 +7,9 @@
     <string name="more_options">More options</string>
     <string name="privacy_and_licenses">Privacy &amp; licenses</string>
     <string name="done">Done</string>
-    <string name="privacy_summary">APK Extractor reads the installed-app inventory only to show the apps you can extract. All processing stays on this device. The app has no Internet permission and does not collect, sell, or share data. Your selected export-folder location is stored locally, and exported files are written only to that folder.</string>
-    <string name="android_robot_attribution">The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the Creative Commons 3.0 Attribution License. Android is a trademark of Google LLC.</string>
-    <string name="open_source_attribution">Google Sans Flex is licensed under the SIL Open Font License 1.1. Material Symbols and adapted Android Open Source Project Launcher3 icon-normalization logic are licensed under the Apache License 2.0.</string>
+    <string name="privacy_summary">APK Extractor reads the installed-app inventory only to show the apps you can extract. All processing stays on this device. The app has no Internet permission and does not collect, sell, or share data. Your export-folder location, sort preference, and most recent export result are stored locally, and exported files are written only to that folder.</string>
+    <string name="android_robot_attribution" translatable="false">The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the Creative Commons 3.0 Attribution License. Android is a trademark of Google LLC.</string>
+    <string name="open_source_attribution" translatable="false">Google Sans Flex is licensed under the SIL Open Font License 1.1. Material Symbols and adapted Android Open Source Project Launcher3 icon-normalization logic are licensed under the Apache License 2.0.</string>
     <string name="exit_selection">Exit selection</string>
     <string name="extract_selected">Extract selected apps</string>
     <string name="extract_app">Extract %1$s</string>
@@ -23,13 +23,13 @@
     <string name="no_apps">No apps found</string>
     <string name="no_apps_detail">Try another search or app filter.</string>
     <string name="split_apk">Split APK</string>
-    <string name="single_apk">APK</string>
+    <string name="single_apk" translatable="false">APK</string>
     <string name="export_complete">Saved %1$s</string>
     <string name="export_failed">Couldn’t extract %1$s</string>
     <string name="share">Share</string>
     <string name="share_apk">Share extracted files</string>
     <string name="cancel">Cancel</string>
-    <string name="keyboard_shortcuts">APK Extractor</string>
+    <string name="keyboard_shortcuts" translatable="false">APK Extractor</string>
     <string name="keyboard_shortcut_search">Search apps</string>
     <string name="keyboard_shortcut_dismiss">Close search or selection</string>
     <string name="extraction_notification_channel">APK extraction</string>
@@ -68,4 +68,30 @@
         <item quantity="one">Extracting %d app</item>
         <item quantity="other">Extracting %d apps</item>
     </plurals>
+    <string name="folder_picker_unavailable">Unable to open the folder picker. Enable the system Files app, then try again.</string>
+    <string name="sharing_unavailable">Unable to open sharing. Your extracted files are still in the selected folder.</string>
+    <string name="export_folder">Export folder</string>
+    <string name="no_export_folder">No folder selected</string>
+    <string name="open_folder_unavailable">This device cannot open the folder directly. Open it in your Files app instead.</string>
+    <string name="last_export">Recent export</string>
+    <string name="view_result">View</string>
+    <plurals name="result_saved">
+        <item quantity="one">%d saved</item>
+        <item quantity="other">%d saved</item>
+    </plurals>
+    <plurals name="result_failed">
+        <item quantity="one">%d failed</item>
+        <item quantity="other">%d failed</item>
+    </plurals>
+    <string name="export_result_summary" translatable="false">%1$s · %2$s</string>
+    <string name="retry_failed">Retry failed apps</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_recent">Recently updated</string>
+    <string name="export_interrupted">Export was interrupted. Try again.</string>
+    <string name="export_interrupted_partial">Export was interrupted. A partial file may remain in the export folder. Remove it before trying again.</string>
+    <string name="export_failed_partial">Export failed and a partial file may remain in the export folder. Remove it before trying again.</string>
+    <string name="sort_by">Sort by</string>
+    <string name="export_success_title">Export complete</string>
+    <string name="open_folder_action">Open folder</string>
+    <string name="change_folder_action">Change</string>
 </resources>

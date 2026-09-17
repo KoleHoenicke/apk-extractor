@@ -1,0 +1,99 @@
+<resources>
+    <string name="search_apps">Rechercher des applis</string>
+    <string name="clear_search">Effacer la recherche</string>
+    <string name="choose_folder">Choisir le dossier d’exportation</string>
+    <string name="change_folder">Changer le dossier d’exportation</string>
+    <string name="more_options">Plus d’options</string>
+    <string name="privacy_and_licenses">Confidentialité et licences</string>
+    <string name="done">Terminé</string>
+    <string name="privacy_summary">APK Extractor consulte la liste des applis installées uniquement pour afficher celles que vous pouvez extraire. Tout le traitement se fait sur cet appareil. L’appli ne dispose pas de l’autorisation d’accès à Internet et ne collecte, ne vend ni ne partage de données. L’emplacement du dossier d’exportation, votre choix de tri et le résultat de la dernière exportation sont enregistrés localement. Les fichiers exportés sont écrits uniquement dans ce dossier.</string>
+    <string name="exit_selection">Quitter la sélection</string>
+    <string name="extract_selected">Extraire les applis sélectionnées</string>
+    <string name="extract_app">Extraire %1$s</string>
+    <string name="select_app">Sélectionner %1$s</string>
+    <string name="deselect_app">Désélectionner %1$s</string>
+    <string name="retry">Réessayer</string>
+    <string name="user_apps">Utilisateur</string>
+    <string name="system_apps">Système</string>
+    <string name="all_apps">Toutes</string>
+    <string name="loading_apps">Chargement des applis installées</string>
+    <string name="no_apps">Aucune appli trouvée</string>
+    <string name="no_apps_detail">Essayez une autre recherche ou un autre filtre.</string>
+    <string name="split_apk">APK fractionné</string>
+    <string name="export_complete">%1$s enregistré</string>
+    <string name="export_failed">Impossible d’extraire %1$s</string>
+    <string name="share">Partager</string>
+    <string name="share_apk">Partager les fichiers extraits</string>
+    <string name="cancel">Annuler</string>
+    <string name="keyboard_shortcut_search">Rechercher des applis</string>
+    <string name="keyboard_shortcut_dismiss">Fermer la recherche ou la sélection</string>
+    <string name="extraction_notification_channel">Extraction d’APK</string>
+    <string name="extraction_notification_channel_description">Progression de l’extraction des fichiers APK</string>
+    <string name="notification_extracting_app">Extraction de %1$s</string>
+    <string name="notification_percent_complete">%1$d%% terminé</string>
+    <string name="notification_extraction_finished">Extraction terminée</string>
+    <string name="error_app_no_longer_installed">Cette appli n’est plus installée.</string>
+    <string name="error_loading_apps">Impossible de charger les applis installées.</string>
+    <string name="error_folder_unavailable">Le dossier sélectionné n’est plus disponible.</string>
+    <string name="error_create_export">Impossible de créer un fichier dans le dossier sélectionné.</string>
+    <string name="error_open_export">Impossible d’ouvrir le fichier d’exportation.</string>
+    <string name="error_start_extraction">Impossible de démarrer l’extraction.</string>
+    <string name="error_unknown">Erreur inconnue</string>
+    <plurals name="app_count">
+        <item quantity="one">%d appli</item>
+        <item quantity="other">%d applis</item>
+        <item quantity="many">%d applis</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%d sélectionnée</item>
+        <item quantity="other">%d sélectionnées</item>
+        <item quantity="many">%d sélectionnées</item>
+    </plurals>
+    <plurals name="export_complete_count">
+        <item quantity="one">%d appli enregistrée</item>
+        <item quantity="other">%d applis enregistrées</item>
+        <item quantity="many">%d applis enregistrées</item>
+    </plurals>
+    <plurals name="export_failed_count">
+        <item quantity="one">Impossible d’extraire %d appli</item>
+        <item quantity="other">Impossible d’extraire %d applis</item>
+        <item quantity="many">Impossible d’extraire %d applis</item>
+    </plurals>
+    <plurals name="export_partial">
+        <item quantity="one">Applis enregistrées : %1$d sur %2$d</item>
+        <item quantity="other">Applis enregistrées : %1$d sur %2$d</item>
+        <item quantity="many">Applis enregistrées : %1$d sur %2$d</item>
+    </plurals>
+    <plurals name="notification_extracting_apps">
+        <item quantity="one">Extraction de %d appli</item>
+        <item quantity="other">Extraction de %d applis</item>
+        <item quantity="many">Extraction de %d applis</item>
+    </plurals>
+    <string name="folder_picker_unavailable">Impossible d’ouvrir le sélecteur de dossiers. Activez l’appli Fichiers du système, puis réessayez.</string>
+    <string name="sharing_unavailable">Impossible d’ouvrir le menu de partage. Vos fichiers extraits sont toujours dans le dossier sélectionné.</string>
+    <string name="export_folder">Dossier d’exportation</string>
+    <string name="no_export_folder">Aucun dossier sélectionné</string>
+    <string name="open_folder_unavailable">Cet appareil ne peut pas ouvrir le dossier directement. Ouvrez-le dans votre appli Fichiers.</string>
+    <string name="last_export">Dernière exportation</string>
+    <string name="view_result">Voir</string>
+    <plurals name="result_saved">
+        <item quantity="one">%d enregistrée</item>
+        <item quantity="other">%d enregistrées</item>
+        <item quantity="many">%d enregistrées</item>
+    </plurals>
+    <plurals name="result_failed">
+        <item quantity="one">%d en échec</item>
+        <item quantity="other">%d en échec</item>
+        <item quantity="many">%d en échec</item>
+    </plurals>
+    <string name="retry_failed">Réessayer les applis en échec</string>
+    <string name="sort_name">Nom</string>
+    <string name="sort_recent">Mises à jour récentes</string>
+    <string name="export_interrupted">L’exportation a été interrompue. Réessayez.</string>
+    <string name="export_interrupted_partial">L’exportation a été interrompue. Un fichier incomplet peut rester dans le dossier d’exportation. Supprimez-le avant de réessayer.</string>
+    <string name="export_failed_partial">L’exportation a échoué et un fichier incomplet peut rester dans le dossier d’exportation. Supprimez-le avant de réessayer.</string>
+    <string name="sort_by">Trier par</string>
+    <string name="export_success_title">Exportation terminée</string>
+    <string name="open_folder_action">Ouvrir le dossier</string>
+    <string name="change_folder_action">Changer</string>
+</resources>

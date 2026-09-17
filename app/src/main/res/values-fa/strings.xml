@@ -1,0 +1,91 @@
+<resources>
+    <string name="search_apps">جستجوی برنامه‌ها</string>
+    <string name="clear_search">پاک کردن جستجو</string>
+    <string name="choose_folder">انتخاب پوشهٔ خروجی</string>
+    <string name="change_folder">تغییر پوشهٔ خروجی</string>
+    <string name="more_options">گزینه‌های بیشتر</string>
+    <string name="privacy_and_licenses">حریم خصوصی و مجوزها</string>
+    <string name="done">تمام</string>
+    <string name="privacy_summary">\u2066APK Extractor\u2069 فهرست برنامه‌های نصب‌شده را فقط برای نمایش برنامه‌هایی می‌خواند که می‌توانید استخراج کنید. همهٔ پردازش‌ها روی همین دستگاه انجام می‌شود. برنامه مجوز دسترسی به اینترنت ندارد و داده‌ای جمع‌آوری نمی‌کند، نمی‌فروشد و به اشتراک نمی‌گذارد. مسیر پوشهٔ خروجی، ترتیب نمایش دلخواه و نتیجهٔ آخرین خروجی به‌صورت محلی ذخیره می‌شوند و فایل‌های خروجی فقط در همان پوشه نوشته می‌شوند.</string>
+    <string name="exit_selection">خروج از حالت انتخاب</string>
+    <string name="extract_selected">استخراج برنامه‌های انتخاب‌شده</string>
+    <string name="extract_app">استخراج \u2068%1$s\u2069</string>
+    <string name="select_app">انتخاب \u2068%1$s\u2069</string>
+    <string name="deselect_app">لغو انتخاب \u2068%1$s\u2069</string>
+    <string name="retry">تلاش دوباره</string>
+    <string name="user_apps">کاربر</string>
+    <string name="system_apps">سیستم</string>
+    <string name="all_apps">همه</string>
+    <string name="loading_apps">در حال بارگذاری برنامه‌های نصب‌شده</string>
+    <string name="no_apps">برنامه‌ای یافت نشد</string>
+    <string name="no_apps_detail">جستجو یا فیلتر دیگری را امتحان کنید.</string>
+    <string name="split_apk">APK چندبخشی</string>
+    <string name="export_complete">\u2068%1$s\u2069 ذخیره شد</string>
+    <string name="export_failed">استخراج \u2068%1$s\u2069 ممکن نشد</string>
+    <string name="share">اشتراک‌گذاری</string>
+    <string name="share_apk">اشتراک‌گذاری فایل‌های استخراج‌شده</string>
+    <string name="cancel">لغو</string>
+    <string name="keyboard_shortcut_search">جستجوی برنامه‌ها</string>
+    <string name="keyboard_shortcut_dismiss">بستن جستجو یا انتخاب</string>
+    <string name="extraction_notification_channel">استخراج APK</string>
+    <string name="extraction_notification_channel_description">پیشرفت استخراج فایل‌های APK</string>
+    <string name="notification_extracting_app">در حال استخراج \u2068%1$s\u2069</string>
+    <string name="notification_percent_complete">%1$d%% تکمیل شد</string>
+    <string name="notification_extraction_finished">استخراج تمام شد</string>
+    <string name="error_app_no_longer_installed">این برنامه دیگر نصب نیست.</string>
+    <string name="error_loading_apps">بارگذاری برنامه‌های نصب‌شده ممکن نشد.</string>
+    <string name="error_folder_unavailable">پوشهٔ انتخاب‌شده دیگر در دسترس نیست.</string>
+    <string name="error_create_export">ایجاد فایل در پوشهٔ انتخاب‌شده ممکن نشد.</string>
+    <string name="error_open_export">باز کردن فایل خروجی ممکن نشد.</string>
+    <string name="error_start_extraction">شروع استخراج ممکن نشد.</string>
+    <string name="error_unknown">خطای نامشخص</string>
+    <plurals name="app_count">
+        <item quantity="one">%d برنامه</item>
+        <item quantity="other">%d برنامه</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%d انتخاب‌شده</item>
+        <item quantity="other">%d انتخاب‌شده</item>
+    </plurals>
+    <plurals name="export_complete_count">
+        <item quantity="one">%d برنامه ذخیره شد</item>
+        <item quantity="other">%d برنامه ذخیره شد</item>
+    </plurals>
+    <plurals name="export_failed_count">
+        <item quantity="one">استخراج %d برنامه ممکن نشد</item>
+        <item quantity="other">استخراج %d برنامه ممکن نشد</item>
+    </plurals>
+    <plurals name="export_partial">
+        <item quantity="one">%1$d از %2$d برنامه ذخیره شد</item>
+        <item quantity="other">%1$d از %2$d برنامه ذخیره شد</item>
+    </plurals>
+    <plurals name="notification_extracting_apps">
+        <item quantity="one">در حال استخراج %d برنامه</item>
+        <item quantity="other">در حال استخراج %d برنامه</item>
+    </plurals>
+    <string name="folder_picker_unavailable">باز کردن انتخابگر پوشه ممکن نشد. برنامهٔ فایل‌های سیستم را فعال کنید و دوباره امتحان کنید.</string>
+    <string name="sharing_unavailable">باز کردن منوی اشتراک‌گذاری ممکن نشد. فایل‌های استخراج‌شده همچنان در پوشهٔ انتخاب‌شده هستند.</string>
+    <string name="export_folder">پوشهٔ خروجی</string>
+    <string name="no_export_folder">پوشه‌ای انتخاب نشده است</string>
+    <string name="open_folder_unavailable">این دستگاه نمی‌تواند پوشه را مستقیم باز کند. آن را در برنامهٔ فایل‌ها باز کنید.</string>
+    <string name="last_export">آخرین خروجی</string>
+    <string name="view_result">مشاهده</string>
+    <plurals name="result_saved">
+        <item quantity="one">%d ذخیره‌شده</item>
+        <item quantity="other">%d ذخیره‌شده</item>
+    </plurals>
+    <plurals name="result_failed">
+        <item quantity="one">%d ناموفق</item>
+        <item quantity="other">%d ناموفق</item>
+    </plurals>
+    <string name="retry_failed">تلاش دوباره برای برنامه‌های ناموفق</string>
+    <string name="sort_name">نام</string>
+    <string name="sort_recent">به‌روزرسانی‌های اخیر</string>
+    <string name="export_interrupted">صدور فایل متوقف شد. دوباره امتحان کنید.</string>
+    <string name="export_interrupted_partial">صدور فایل متوقف شد. ممکن است فایلی ناقص در پوشهٔ خروجی باقی مانده باشد. پیش از تلاش دوباره آن را حذف کنید.</string>
+    <string name="export_failed_partial">صدور فایل ناموفق بود و ممکن است فایلی ناقص در پوشهٔ خروجی باقی مانده باشد. پیش از تلاش دوباره آن را حذف کنید.</string>
+    <string name="sort_by">مرتب‌سازی بر اساس</string>
+    <string name="export_success_title">خروجی ذخیره شد</string>
+    <string name="open_folder_action">باز کردن پوشه</string>
+    <string name="change_folder_action">تغییر</string>
+</resources>

@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.KeyboardShortcutGroup
@@ -14,6 +16,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import com.kolehoenicke.apkextractor.ui.ApkExtractorApp
 import com.kolehoenicke.apkextractor.ui.theme.ApkExtractorTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,7 +40,20 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        if (Build.VERSION.SDK_INT >= 35) {
+            // Android 15+ enforces edge-to-edge for our target SDK. Avoid the bar-color
+            // setters in Activity's compatibility helper on these versions.
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            val darkTheme = resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+            WindowCompat.getInsetsController(window, window.decorView).apply {
+                isAppearanceLightStatusBars = !darkTheme
+                isAppearanceLightNavigationBars = !darkTheme
+            }
+        } else {
+            // Older Android versions still need AndroidX's bar-color/cutout compatibility.
+            enableEdgeToEdge()
+        }
 
         setContent {
             ApkExtractorTheme {

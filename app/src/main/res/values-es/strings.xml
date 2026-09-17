@@ -1,0 +1,99 @@
+<resources>
+    <string name="search_apps">Buscar apps</string>
+    <string name="clear_search">Borrar búsqueda</string>
+    <string name="choose_folder">Elegir carpeta de exportación</string>
+    <string name="change_folder">Cambiar carpeta de exportación</string>
+    <string name="more_options">Más opciones</string>
+    <string name="privacy_and_licenses">Privacidad y licencias</string>
+    <string name="done">Listo</string>
+    <string name="privacy_summary">APK Extractor consulta la lista de apps instaladas solo para mostrar las que puedes extraer. Todo el procesamiento se realiza en este dispositivo. La app no tiene permiso de acceso a Internet y no recopila, vende ni comparte datos. La ubicación de la carpeta de exportación, el orden elegido y el resultado de la última exportación se guardan localmente. Los archivos exportados se escriben solo en esa carpeta.</string>
+    <string name="exit_selection">Salir de la selección</string>
+    <string name="extract_selected">Extraer apps seleccionadas</string>
+    <string name="extract_app">Extraer %1$s</string>
+    <string name="select_app">Seleccionar %1$s</string>
+    <string name="deselect_app">Deseleccionar %1$s</string>
+    <string name="retry">Reintentar</string>
+    <string name="user_apps">Usuario</string>
+    <string name="system_apps">Sistema</string>
+    <string name="all_apps">Todas</string>
+    <string name="loading_apps">Cargando apps instaladas</string>
+    <string name="no_apps">No se encontraron apps</string>
+    <string name="no_apps_detail">Prueba otra búsqueda o filtro de apps.</string>
+    <string name="split_apk">APK dividido</string>
+    <string name="export_complete">Se guardó %1$s</string>
+    <string name="export_failed">No se pudo extraer %1$s</string>
+    <string name="share">Compartir</string>
+    <string name="share_apk">Compartir archivos extraídos</string>
+    <string name="cancel">Cancelar</string>
+    <string name="keyboard_shortcut_search">Buscar apps</string>
+    <string name="keyboard_shortcut_dismiss">Cerrar búsqueda o selección</string>
+    <string name="extraction_notification_channel">Extracción de APK</string>
+    <string name="extraction_notification_channel_description">Progreso de la extracción de archivos APK</string>
+    <string name="notification_extracting_app">Extrayendo %1$s</string>
+    <string name="notification_percent_complete">%1$d%% completado</string>
+    <string name="notification_extraction_finished">Extracción finalizada</string>
+    <string name="error_app_no_longer_installed">Esta app ya no está instalada.</string>
+    <string name="error_loading_apps">No se pudieron cargar las apps instaladas.</string>
+    <string name="error_folder_unavailable">La carpeta seleccionada ya no está disponible.</string>
+    <string name="error_create_export">No se pudo crear un archivo en la carpeta seleccionada.</string>
+    <string name="error_open_export">No se pudo abrir el archivo de exportación.</string>
+    <string name="error_start_extraction">No se pudo iniciar la extracción.</string>
+    <string name="error_unknown">Error desconocido</string>
+    <plurals name="app_count">
+        <item quantity="one">%d app</item>
+        <item quantity="other">%d apps</item>
+        <item quantity="many">%d apps</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%d seleccionada</item>
+        <item quantity="other">%d seleccionadas</item>
+        <item quantity="many">%d seleccionadas</item>
+    </plurals>
+    <plurals name="export_complete_count">
+        <item quantity="one">Se guardó %d app</item>
+        <item quantity="other">Se guardaron %d apps</item>
+        <item quantity="many">Se guardaron %d apps</item>
+    </plurals>
+    <plurals name="export_failed_count">
+        <item quantity="one">No se pudo extraer %d app</item>
+        <item quantity="other">No se pudieron extraer %d apps</item>
+        <item quantity="many">No se pudieron extraer %d apps</item>
+    </plurals>
+    <plurals name="export_partial">
+        <item quantity="one">Apps guardadas: %1$d de %2$d</item>
+        <item quantity="other">Apps guardadas: %1$d de %2$d</item>
+        <item quantity="many">Apps guardadas: %1$d de %2$d</item>
+    </plurals>
+    <plurals name="notification_extracting_apps">
+        <item quantity="one">Extrayendo %d app</item>
+        <item quantity="other">Extrayendo %d apps</item>
+        <item quantity="many">Extrayendo %d apps</item>
+    </plurals>
+    <string name="folder_picker_unavailable">No se pudo abrir el selector de carpetas. Activa la app Archivos del sistema y vuelve a intentarlo.</string>
+    <string name="sharing_unavailable">No se pudo abrir el menú para compartir. Los archivos extraídos siguen en la carpeta seleccionada.</string>
+    <string name="export_folder">Carpeta de exportación</string>
+    <string name="no_export_folder">Ninguna carpeta seleccionada</string>
+    <string name="open_folder_unavailable">Este dispositivo no puede abrir la carpeta directamente. Ábrela desde la app Archivos.</string>
+    <string name="last_export">Última exportación</string>
+    <string name="view_result">Ver</string>
+    <plurals name="result_saved">
+        <item quantity="one">%d guardada</item>
+        <item quantity="other">%d guardadas</item>
+        <item quantity="many">%d guardadas</item>
+    </plurals>
+    <plurals name="result_failed">
+        <item quantity="one">%d fallida</item>
+        <item quantity="other">%d fallidas</item>
+        <item quantity="many">%d fallidas</item>
+    </plurals>
+    <string name="retry_failed">Reintentar apps fallidas</string>
+    <string name="sort_name">Nombre</string>
+    <string name="sort_recent">Actualizadas recientemente</string>
+    <string name="export_interrupted">La exportación se interrumpió. Vuelve a intentarlo.</string>
+    <string name="export_interrupted_partial">La exportación se interrumpió. Puede quedar un archivo incompleto en la carpeta de exportación. Elimínalo antes de volver a intentarlo.</string>
+    <string name="export_failed_partial">La exportación falló y puede quedar un archivo incompleto en la carpeta de exportación. Elimínalo antes de volver a intentarlo.</string>
+    <string name="sort_by">Ordenar por</string>
+    <string name="export_success_title">Exportación completada</string>
+    <string name="open_folder_action">Abrir carpeta</string>
+    <string name="change_folder_action">Cambiar</string>
+</resources>

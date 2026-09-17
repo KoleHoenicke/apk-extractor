@@ -1,7 +1,7 @@
-Initial release.
-
-• Extract installed APK and split APK files
-• Multi-select and concurrent exports
-• Background progress and completion sharing
-• Material 3 Expressive interface with adaptive layouts
-• Free, ad-free, and open source
+• Added Spanish, Portuguese, French, Arabic, and Persian, with Android app-language settings.
+• Improved list stability while scrolling.
+• Open your export folder on supported devices.
+• Review your last export, share files, and retry failed apps.
+• Improved batch exports, cancellation, and recovery.
+• Sort apps by recently updated.
+• Preserve international app names in exported filenames.

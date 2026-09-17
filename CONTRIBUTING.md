@@ -30,3 +30,11 @@ Keep signing credentials outside the repository. A debug build requires no signi
 - Preserve the existing Material 3 Expressive, edge-to-edge, and adaptive behavior.
 
 By contributing, you agree that your contribution is licensed under the Apache License 2.0.
+
+## Translations
+
+English strings live in `app/src/main/res/values/strings.xml`. Translations use Android resource directories: `values-es`, `values-pt` (Brazilian wording), `values-fr`, `values-ar`, and `values-fa`. The app follows Android language preferences; Android 13 and later also offer an app-specific language in Settings.
+
+Translate complete messages in screen context. Keep APK, package identifiers, app names, and filenames intact. Resources marked `translatable="false"` include the product name and verbatim legal attributions. Preserve placeholders (`%1$s`, `%d`, `%%`) and the direction-isolation escapes around names in RTL messages. Provide the plural categories required by the language; do not assume English singular/plural rules apply.
+
+Run `python3 scripts/check-localizations.py` and Android lint after editing. Check the actual screens with large text and RTL layout. The initial translations were AI-assisted; wording corrections from speakers are welcome. Include the screen, current wording, and suggested replacement in an issue or pull request.

@@ -24,6 +24,10 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 
 class ExtractionService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -96,21 +100,29 @@ class ExtractionService : Service() {
         startId: Int,
     ) {
         try {
+            val initial = ExtractionSession.state.value.apps
+            val placeholders = initial.map { InstalledApp(it.label, it.packageName, "", 0, null, false, emptyList()) }
+            ExportResultStore(this).begin(placeholders, outputTree)
             val appsByPackage = AppCatalog(this).loadPackages(packageNames).associateBy { it.packageName }
             val missing = packageNames.filterNot(appsByPackage::containsKey)
             val apps = packageNames.mapNotNull(appsByPackage::get)
             val exporter = ApkExporter(this)
+            val resultStore = ExportResultStore(this)
+            val limit = Semaphore(3)
             val attempts = supervisorScope {
                 apps.map { app ->
                     async {
-                        try {
-                            val file = exporter.export(app, outputTree) { progress ->
-                                onProgress(app.packageName, progress)
+                        limit.withPermit {
+                            try {
+                                val file = exporter.export(app, outputTree) { progress ->
+                                    onProgress(app.packageName, progress)
+                                }
+                                ExportAttempt(app = app, file = file)
+                            } catch (failure: Exception) {
+                                if (failure is CancellationException) throw failure
+                                resultStore.failed(app.packageName, failure.message ?: getString(R.string.error_unknown))
+                                ExportAttempt(app = app, failure = failure)
                             }
-                            ExportAttempt(app = app, file = file)
-                        } catch (failure: Exception) {
-                            if (failure is CancellationException) throw failure
-                            ExportAttempt(app = app, failure = failure)
                         }
                     }
                 }.awaitAll()
@@ -118,13 +130,15 @@ class ExtractionService : Service() {
 
             val failures = buildList {
                 missing.forEach { packageName ->
-                    add(ExportFailure(packageName, getString(R.string.error_app_no_longer_installed)))
+                    resultStore.failed(packageName, getString(R.string.error_app_no_longer_installed))
+                    add(ExportFailure(packageName, getString(R.string.error_app_no_longer_installed), packageName))
                 }
                 attempts.forEach { attempt ->
                     attempt.failure?.let { failure ->
                         add(
                             ExportFailure(
                                 appLabel = attempt.app.label,
+                                packageName = attempt.app.packageName,
                                 reason = failure.message ?: getString(R.string.error_unknown),
                             ),
                         )
@@ -140,37 +154,38 @@ class ExtractionService : Service() {
                 files = files,
                 requestedCount = packageNames.size,
                 failures = failures,
+                outputFolder = outputTree,
             )
+            resultStore.finish()
             ExtractionSession.finish(event)
             stopForeground(STOP_FOREGROUND_DETACH)
-            notifications.notifyFinished(files, packageNames.size)
+            runCatching { notifications.notifyFinished(files, packageNames.size) }
             stopSelf(startId)
         } catch (cancellation: CancellationException) {
-            ExtractionSession.clear()
-            stopForeground(STOP_FOREGROUND_REMOVE)
-            notifications.cancel()
-            stopSelf(startId)
+            withContext(NonCancellable) {
+                val store = ExportResultStore(this@ExtractionService)
+                runCatching { store.recoverInterrupted() }
+                store.read()?.let { ExtractionSession.finish(it) }
+                ExtractionSession.clear()
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                notifications.cancel()
+                stopSelf(startId)
+            }
         } catch (failure: Exception) {
-            if (failure is SecurityException) {
-                OutputFolderStore(this).clear()
-            }
-            val labelsByPackage = ExtractionSession.state.value.apps.associate {
-                it.packageName to it.label
-            }
-            ExtractionSession.finish(
-                UiEvent.ExportFinished(
-                    files = emptyList(),
-                    requestedCount = packageNames.size,
-                    failures = packageNames.map { packageName ->
-                        ExportFailure(
-                            appLabel = labelsByPackage[packageName] ?: packageName,
-                            reason = failure.message ?: getString(R.string.error_unknown),
-                        )
-                    },
-                ),
+            if (failure is SecurityException) OutputFolderStore(this).clear()
+            val store = ExportResultStore(this)
+            runCatching { store.recoverInterrupted() }
+            val result = store.read() ?: UiEvent.ExportFinished(
+                files = emptyList(),
+                requestedCount = packageNames.size,
+                failures = packageNames.map { packageName ->
+                    ExportFailure(packageName, failure.message ?: getString(R.string.error_unknown), packageName)
+                },
+                outputFolder = outputTree,
             )
+            ExtractionSession.finish(result)
             stopForeground(STOP_FOREGROUND_DETACH)
-            runCatching { notifications.notifyFinished(emptyList(), packageNames.size) }
+            runCatching { notifications.notifyFinished(result.files, packageNames.size) }
             stopSelf(startId)
         }
     }
