@@ -83,7 +83,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
     implementation("com.google.android.play:review:2.0.2")
     constraints {
-        implementation("androidx.fragment:fragment:1.8.9") {
+        implementation("androidx.fragment:fragment:1.9.0") {
             because("Play Review transitively requests Fragment 1.1.0, which Play flags as outdated")
         }
     }
