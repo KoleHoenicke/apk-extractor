@@ -76,21 +76,21 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.5.0-alpha28")
     implementation("androidx.compose.material3.adaptive:adaptive:1.3.0")
     // Optional spatial UI. The same APK retains its phone/tablet/desktop UI.
-    implementation("androidx.xr.runtime:runtime:1.1.0-alpha01")
-    implementation("androidx.xr.scenecore:scenecore:1.0.0-rc02")
-    implementation("androidx.xr.compose:compose:1.0.0-beta01")
+    implementation("androidx.xr.runtime:runtime:1.1.0-alpha02")
+    implementation("androidx.xr.scenecore:scenecore:1.1.0-alpha01")
+    implementation("androidx.xr.compose:compose:1.0.0-beta02")
     implementation("androidx.xr.compose.material3:material3:1.0.0-alpha17")
     // XR extension classes are supplied by the platform, including in minified builds.
     compileOnly("com.android.extensions.xr:extensions-xr:1.3.0")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.core:core-ktx:1.19.0")
+    implementation("androidx.core:core-ktx:1.19.1")
     implementation("androidx.documentfile:documentfile:1.1.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
     implementation("com.google.android.play:review:2.0.2")
     constraints {
-        implementation("androidx.fragment:fragment:1.8.9") {
+        implementation("androidx.fragment:fragment:1.9.1") {
             because("Play Review transitively requests Fragment 1.1.0, which Play flags as outdated")
         }
     }
