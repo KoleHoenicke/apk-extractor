@@ -22,7 +22,9 @@
     <string name="loading_apps">Loading installed apps</string>
     <string name="no_apps">No apps found</string>
     <string name="no_apps_detail">Try another search or app filter.</string>
-    <string name="split_apk">Split APK</string>
+    <string name="split_apk">Split APKs · ZIP</string>
+    <string name="split_export_title">Split APK export</string>
+    <string name="split_export_detail">This app is installed as multiple APKs. The saved ZIP contains the base APK and its splits, so it cannot be installed by tapping the ZIP. To reinstall it, extract all files and use a split-APK installer that installs them together.</string>
     <string name="single_apk" translatable="false">APK</string>
     <string name="export_complete">Saved %1$s</string>
     <string name="export_failed">Couldn’t extract %1$s</string>
@@ -94,4 +96,13 @@
     <string name="export_success_title">Export complete</string>
     <string name="open_folder_action">Open folder</string>
     <string name="change_folder_action">Change</string>
+    <string name="keyboard_shortcut_select_all">Select all visible apps</string>
+    <string name="keyboard_shortcut_toggle">Select or deselect focused app</string>
+    <string name="keyboard_shortcut_menu">Open app actions</string>
+    <string name="new_window">New window</string>
+    <plurals name="exported_files">
+        <item quantity="one">%d exported file</item>
+        <item quantity="other">%d exported files</item>
+    </plurals>
+    <string name="xr_export_workspace">Export workspace</string>
 </resources>

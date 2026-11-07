@@ -2,14 +2,18 @@ package com.kolehoenicke.apkextractor
 
 import android.content.Intent
 import android.net.Uri
+import android.provider.DocumentsContract
+import android.view.View
 import androidx.core.content.IntentCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.kolehoenicke.apkextractor.data.ExportedFile
+import com.kolehoenicke.apkextractor.ui.exportedFileDragData
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -50,6 +54,40 @@ class ShareIntentsTest {
         assertEquals(Intent.ACTION_SEND_MULTIPLE, send?.action)
         assertEquals("application/octet-stream", send?.type)
         assertEquals(2, send?.clipData?.itemCount)
+    }
+
+    @Test
+    fun providerRejectingStreamTypeQueriesStillSharesWithReadGrant() {
+        val authority = "com.kolehoenicke.apkextractor.test.exports"
+        val tree = DocumentsContract.buildTreeDocumentUri(authority, "root")
+        com.kolehoenicke.apkextractor.data.grantExportTestTree()
+        val uri = DocumentsContract.buildDocumentUriUsingTree(tree, "rejected-stream-types.apk")
+        assertThrows(IllegalArgumentException::class.java) {
+            context.contentResolver.getStreamTypes(uri, "*/*")
+        }
+
+        val chooser = createShareChooserIntent(context, listOf(ExportedFile(uri, "app.apk", false)))!!
+        val send = IntentCompat.getParcelableExtra(chooser, Intent.EXTRA_INTENT, Intent::class.java)!!
+        assertEquals(Intent.ACTION_SEND, send.action)
+        assertEquals(uri, send.clipData!!.getItemAt(0).uri)
+        assertEquals("application/vnd.android.package-archive", send.clipData!!.description.getMimeType(0))
+        assertTrue(send.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION != 0)
+        assertTrue(chooser.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION != 0)
+    }
+
+    @Test
+    fun fileDragIncludesEveryUriAndOnlyReadPermission() {
+        val files = listOf(
+            ExportedFile(Uri.parse("content://example/app.apk"), "app.apk", false),
+            ExportedFile(Uri.parse("content://example/splits.zip"), "splits.zip", true),
+        )
+        val drag = exportedFileDragData(files)!!
+        assertEquals(View.DRAG_FLAG_GLOBAL or View.DRAG_FLAG_GLOBAL_URI_READ, drag.flags)
+        assertEquals(2, drag.clipData.itemCount)
+        assertEquals(files[0].uri, drag.clipData.getItemAt(0).uri)
+        assertEquals(files[1].uri, drag.clipData.getItemAt(1).uri)
+        assertEquals("application/octet-stream", drag.clipData.description.getMimeType(0))
+        assertNull(exportedFileDragData(emptyList()))
     }
 
     @Test

@@ -21,11 +21,19 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -46,12 +54,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ButtonGroupDefaults
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,6 +74,8 @@ import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
@@ -75,8 +87,11 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSearchBarState
+import androidx.compose.material3.nonInteractiveScrollbar
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -92,9 +107,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -102,6 +125,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -140,6 +164,7 @@ fun ApkExtractorApp(
     viewModel: MainViewModel,
     focusSearchRequests: Flow<Unit>,
     onSuccessfulExtractionSession: () -> Unit = {},
+    onNewWindow: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -154,8 +179,7 @@ fun ApkExtractorApp(
     var pendingExtraction by remember { mutableStateOf<PendingExtraction?>(null) }
 
     val startExtraction: (PendingExtraction) -> Unit = { pending ->
-        viewModel.extract(pending.apps)
-        if (pending.clearSelectionOnStart) viewModel.clearSelection()
+        if (viewModel.extract(pending.apps) && pending.clearSelectionOnStart) viewModel.clearSelection()
     }
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -260,7 +284,9 @@ fun ApkExtractorApp(
                             )
                         }
                     }
-                    if (event.failures.isNotEmpty()) resultVisible = true
+                    if (event.failures.isNotEmpty() || event.files.any(ExportedFile::isSplitArchive)) {
+                        resultVisible = true
+                    }
                     val result = snackbarHostState.showSnackbar(
                         message = message,
                         actionLabel = resources.getString(R.string.view_result),
@@ -272,49 +298,84 @@ fun ApkExtractorApp(
         }
     }
 
-    if (folderInfoVisible) {
-        ExportFolderDialog(
-            folderName = state.outputFolderName,
-            onOpen = { state.outputFolder?.let { if (!openExportFolder(context, it)) showLaunchError(R.string.open_folder_unavailable) } },
-            onChange = { folderInfoVisible = false; chooseFolder(state.outputFolder) },
-            onDismiss = { folderInfoVisible = false; pendingExtraction = null },
-        )
-    }
+    val failedPackages = state.lastResult?.failures?.map { it.packageName }?.toSet().orEmpty()
+    val retryApps = state.apps.filter { it.packageName in failedPackages }
+    val retryResult: () -> Unit = { resultVisible = false; extract(retryApps, false) }
+    val openResultFolder: () -> Unit = { state.lastResult?.outputFolder?.let {
+        if (!openExportFolder(context, it)) showLaunchError(R.string.open_folder_unavailable)
+    } }
+    val shareResult: () -> Unit = { state.lastResult?.let { result ->
+        if (!tryLaunchExternalActivity { share(context, result.files) }) showLaunchError(R.string.sharing_unavailable)
+    } }
 
-    if (resultVisible) state.lastResult?.let { result ->
-        val failedPackages = result.failures.map { it.packageName }.toSet()
-        val retryApps = state.apps.filter { it.packageName in failedPackages }
-        ExportResultDialog(
-            result = result,
-            canRetry = !state.isExporting && retryApps.isNotEmpty(),
-            onRetry = { resultVisible = false; extract(retryApps, false) },
-            onOpenFolder = { result.outputFolder?.let {
+    XrWorkspace(
+        supportingPane = {
+            XrExportPane(
+                state = state,
+                onChooseFolder = { pendingExtraction = null; folderInfoVisible = true },
+                onOpenFolder = { state.outputFolder?.let {
+                    if (!openExportFolder(context, it)) showLaunchError(R.string.open_folder_unavailable)
+                } },
+                onShowLastResult = { resultVisible = true },
+                onShareLastResult = shareResult,
+                showResult = resultVisible,
+                canRetry = !state.isExporting && retryApps.isNotEmpty(),
+                onRetry = retryResult,
+                onOpenResultFolder = openResultFolder,
+                onCloseResult = { resultVisible = false },
+            )
+        },
+    ) {
+        if (folderInfoVisible) {
+            ExportFolderDialog(
+                folderName = state.outputFolderName,
+                onOpen = { state.outputFolder?.let { if (!openExportFolder(context, it)) showLaunchError(R.string.open_folder_unavailable) } },
+                onChange = { folderInfoVisible = false; chooseFolder(state.outputFolder) },
+                onDismiss = { folderInfoVisible = false; pendingExtraction = null },
+            )
+        }
+
+        if (resultVisible) state.lastResult?.let { result ->
+            if (!LocalXrUi.current.isSpatial || !needsDetailedExportReport(result)) {
+                ExportResultDialog(
+                    result = result,
+                    canRetry = !state.isExporting && retryApps.isNotEmpty(),
+                    onRetry = retryResult,
+                    onOpenFolder = openResultFolder,
+                    onShare = shareResult,
+                    onDismiss = { resultVisible = false },
+                )
+            }
+        }
+
+        ApkExtractorScreen(
+            state = state,
+            snackbarHostState = snackbarHostState,
+            onQueryChange = viewModel::setQuery,
+            onFilterChange = viewModel::setFilter,
+            onRefresh = viewModel::refresh,
+            onChooseFolder = {
+                pendingExtraction = null
+                folderInfoVisible = true
+            },
+            onExtract = { app -> extract(listOf(app), false) },
+            onExtractSelected = { apps -> extract(apps, true) },
+            onStartSelection = viewModel::startSelection,
+            onToggleSelection = viewModel::toggleSelection,
+            onClearSelection = viewModel::clearSelection,
+            onSelectionChange = viewModel::setSelection,
+            onOpenFolder = { state.outputFolder?.let {
                 if (!openExportFolder(context, it)) showLaunchError(R.string.open_folder_unavailable)
             } },
-            onShare = { if (!tryLaunchExternalActivity { share(context, result.files) }) showLaunchError(R.string.sharing_unavailable) },
-            onDismiss = { resultVisible = false },
+            onSortChange = viewModel::setSort,
+            onShowLastResult = { resultVisible = true },
+            focusSearchRequests = focusSearchRequests,
+            onNewWindow = onNewWindow,
+            onShareLastResult = shareResult,
         )
+        BackHandler(enabled = resultVisible && LocalXrUi.current.isSpatial &&
+            state.lastResult?.let(::needsDetailedExportReport) == true) { resultVisible = false }
     }
-
-    ApkExtractorScreen(
-        state = state,
-        snackbarHostState = snackbarHostState,
-        onQueryChange = viewModel::setQuery,
-        onFilterChange = viewModel::setFilter,
-        onRefresh = viewModel::refresh,
-        onChooseFolder = {
-            pendingExtraction = null
-            folderInfoVisible = true
-        },
-        onExtract = { app -> extract(listOf(app), false) },
-        onExtractSelected = { apps -> extract(apps, true) },
-        onStartSelection = viewModel::startSelection,
-        onToggleSelection = viewModel::toggleSelection,
-        onClearSelection = viewModel::clearSelection,
-        onSortChange = viewModel::setSort,
-        onShowLastResult = { resultVisible = true },
-        focusSearchRequests = focusSearchRequests,
-    )
 }
 
 @Composable
@@ -333,6 +394,10 @@ fun ApkExtractorScreen(
     focusSearchRequests: Flow<Unit>,
     onSortChange: (AppSort) -> Unit = {},
     onShowLastResult: () -> Unit = {},
+    onSelectionChange: (Set<String>) -> Unit = {},
+    onOpenFolder: () -> Unit = {},
+    onNewWindow: (() -> Unit)? = null,
+    onShareLastResult: () -> Unit = {},
 ) {
     val searchBarState = rememberSearchBarState()
     var restoreExpandedSearch by rememberSaveable { mutableStateOf(false) }
@@ -344,16 +409,53 @@ fun ApkExtractorScreen(
     }
     val textFieldState = rememberTextFieldState(state.query)
     val searchFocusRequester = remember { FocusRequester() }
+    var searchFieldFocused by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val topBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val useDockedSearch = shouldUseDockedSearch(currentWindowAdaptiveInfoV2().windowSizeClass)
     val searchWidth = adaptiveSearchWidth(LocalWindowInfo.current.containerDpSize.width)
+    val showExportPane = !LocalXrUi.current.isSpatial &&
+        shouldShowExportPane(currentWindowAdaptiveInfoV2().windowSizeClass)
     val selectionMode = state.selectedPackages.isNotEmpty()
     val selectedApps = remember(state.apps, state.selectedPackages) {
         state.apps.filter { it.packageName in state.selectedPackages }
     }
     var overflowMenuExpanded by remember { mutableStateOf(false) }
     var aboutDialogVisible by remember { mutableStateOf(false) }
+    var selectionAnchor by rememberSaveable { mutableStateOf<String?>(null) }
+    val selectApp: (String) -> Unit = { packageName ->
+        selectionAnchor = packageName
+        onToggleSelection(packageName)
+    }
+    val selectRange: (String) -> Unit = { packageName ->
+        if (!state.isExporting) {
+            val visible = state.visibleApps.map(InstalledApp::packageName)
+            onSelectionChange(state.selectedPackages + selectionRange(visible, selectionAnchor, packageName))
+            if (selectionAnchor !in visible) selectionAnchor = packageName
+        }
+    }
+    val selectionShortcuts = Modifier.onPreviewKeyEvent { event ->
+        // Leave Ctrl+A in the search field to the text editor.
+        if (!(event.isCtrlPressed || event.isMetaPressed)) {
+            false
+        } else if (event.key == Key.A && (searchFieldFocused ||
+            searchBarState.targetValue == androidx.compose.material3.SearchBarValue.Expanded)) {
+            false
+        } else if (event.key == Key.A || event.key == Key.Enter) {
+            if (event.type == KeyEventType.KeyDown && event.nativeKeyEvent.repeatCount == 0 && !state.isExporting) {
+                if (event.key == Key.A) {
+                    val visible = state.visibleApps.map(InstalledApp::packageName)
+                    selectionAnchor = visible.firstOrNull()
+                    onSelectionChange(state.selectedPackages + visible)
+                } else if (selectedApps.isNotEmpty()) {
+                    onExtractSelected(selectedApps)
+                }
+            }
+            true
+        } else {
+            false
+        }
+    }
 
     BackHandler(enabled = selectionMode, onBack = onClearSelection)
 
@@ -377,6 +479,7 @@ fun ApkExtractorScreen(
             onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
             modifier = Modifier
                 .fillMaxWidth()
+                .onFocusChanged { searchFieldFocused = it.isFocused }
                 .focusRequester(searchFocusRequester),
             placeholder = { Text(stringResource(R.string.search_apps)) },
             leadingIcon = {
@@ -388,6 +491,7 @@ fun ApkExtractorScreen(
             trailingIcon = if (textFieldState.text.isNotEmpty()) {
                 {
                     IconButton(
+                        modifier = Modifier.xrActionSize(),
                         onClick = {
                             textFieldState.setTextAndPlaceCursorAtEnd("")
                             onQueryChange("")
@@ -408,80 +512,88 @@ fun ApkExtractorScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
+            .then(selectionShortcuts)
             .nestedScroll(topBarScrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing.union(WindowInsets.ime),
         topBar = {
-            if (selectionMode) {
-                TopAppBar(
-                    title = {
-                        Text(
-                            pluralStringResource(
-                                R.plurals.selected_count,
-                                selectedApps.size,
-                                selectedApps.size,
-                            ),
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onClearSelection) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_close),
-                                contentDescription = stringResource(R.string.exit_selection),
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = { onExtractSelected(selectedApps) },
-                            enabled = selectedApps.isNotEmpty(),
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_download),
-                                contentDescription = stringResource(R.string.extract_selected),
-                            )
-                        }
-                    },
-                    scrollBehavior = topBarScrollBehavior,
-                )
-            } else {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.app_name)) },
-                    actions = {
-                        IconButton(
-                            onClick = onChooseFolder,
-                            enabled = !state.isExporting,
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_folder_open),
-                                contentDescription = stringResource(
-                                    if (state.outputFolder == null) {
-                                        R.string.choose_folder
-                                    } else {
-                                        R.string.change_folder
-                                    },
+            XrAppBar {
+                if (selectionMode) {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                pluralStringResource(
+                                    R.plurals.selected_count,
+                                    selectedApps.size,
+                                    selectedApps.size,
                                 ),
                             )
-                        }
-                        Box {
-                            IconButton(onClick = { overflowMenuExpanded = true }) {
+                        },
+                        navigationIcon = {
+                            AppActionButton(description = stringResource(R.string.exit_selection), onClick = onClearSelection) {
                                 Icon(
-                                    painter = painterResource(R.drawable.ic_more_vert),
-                                    contentDescription = stringResource(R.string.more_options),
+                                    painter = painterResource(R.drawable.ic_close),
+                                    contentDescription = stringResource(R.string.exit_selection),
                                 )
                             }
-                            AppOverflowMenu(
-                                expanded = overflowMenuExpanded,
-                                onDismiss = { overflowMenuExpanded = false },
-                                sort = state.sort,
-                                onSort = onSortChange,
-                                hasResult = state.lastResult != null,
-                                onResult = onShowLastResult,
-                                onAbout = { aboutDialogVisible = true },
-                            )
-                        }
-                    },
-                    scrollBehavior = topBarScrollBehavior,
-                )
+                        },
+                        actions = {
+                            XrSpaceModeButton()
+                            AppActionButton(
+                                description = stringResource(R.string.extract_selected),
+                                onClick = { onExtractSelected(selectedApps) },
+                                enabled = selectedApps.isNotEmpty() && !state.isExporting,
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_download),
+                                    contentDescription = stringResource(R.string.extract_selected),
+                                )
+                            }
+                        },
+                        scrollBehavior = if (LocalXrUi.current.isSpatial) null else topBarScrollBehavior,
+                    )
+                } else {
+                    TopAppBar(
+                        title = { Text(stringResource(R.string.app_name)) },
+                        actions = {
+                            XrSpaceModeButton()
+                            AppActionButton(
+                                description = stringResource(if (state.outputFolder == null) R.string.choose_folder else R.string.change_folder),
+                                onClick = onChooseFolder,
+                                enabled = !state.isExporting,
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_folder_open),
+                                    contentDescription = stringResource(
+                                        if (state.outputFolder == null) {
+                                            R.string.choose_folder
+                                        } else {
+                                            R.string.change_folder
+                                        },
+                                    ),
+                                )
+                            }
+                            Box {
+                                AppActionButton(description = stringResource(R.string.more_options), onClick = { overflowMenuExpanded = true }) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_more_vert),
+                                        contentDescription = stringResource(R.string.more_options),
+                                    )
+                                }
+                                AppOverflowMenu(
+                                    expanded = overflowMenuExpanded,
+                                    onDismiss = { overflowMenuExpanded = false },
+                                    sort = state.sort,
+                                    onSort = onSortChange,
+                                    hasResult = state.lastResult != null,
+                                    onResult = onShowLastResult,
+                                    onAbout = { aboutDialogVisible = true },
+                                    onNewWindow = onNewWindow,
+                                )
+                            }
+                        },
+                        scrollBehavior = if (LocalXrUi.current.isSpatial) null else topBarScrollBehavior,
+                    )
+                }
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -490,46 +602,60 @@ fun ApkExtractorScreen(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.TopCenter,
         ) {
-            AppList(
-                state = state,
-                contentPadding = innerPadding,
-                header = {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        SearchBar(
-                            state = searchBarState,
-                            inputField = searchInput,
-                            modifier = Modifier.width(searchWidth),
+            Row(Modifier.widthIn(max = if (showExportPane) 1176.dp else AdaptiveContentMaxWidth).fillMaxSize()) {
+                AppList(
+                    state = state,
+                    contentPadding = innerPadding,
+                    header = {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            SearchBar(
+                                state = searchBarState,
+                                inputField = searchInput,
+                                modifier = Modifier.width(searchWidth),
+                            )
+                        }
+                        Spacer(Modifier.height(16.dp))
+                        AppFilterButtons(
+                            selected = state.filter,
+                            onSelected = onFilterChange,
                         )
-                    }
-                    Spacer(Modifier.height(16.dp))
-                    AppFilterButtons(
-                        selected = state.filter,
-                        onSelected = onFilterChange,
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = pluralStringResource(
+                                R.plurals.app_count,
+                                state.visibleApps.size,
+                                state.visibleApps.size,
+                            ),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                        )
+                    },
+                    onRefresh = onRefresh,
+                    onExtract = onExtract,
+                    onStartSelection = { selectionAnchor = it; onStartSelection(it) },
+                    onToggleSelection = selectApp,
+                    onRangeSelection = selectRange,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+                        .consumeWindowInsets(innerPadding),
+                )
+                if (showExportPane) {
+                    ExportSupportingPane(
+                        state = state,
+                        onChooseFolder = onChooseFolder,
+                        onOpenFolder = onOpenFolder,
+                        onShowLastResult = onShowLastResult,
+                        onShareLastResult = onShareLastResult,
+                        modifier = Modifier.width(336.dp).fillMaxHeight().padding(innerPadding)
+                            .padding(start = 16.dp, top = 12.dp, end = 16.dp),
                     )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = pluralStringResource(
-                            R.plurals.app_count,
-                            state.visibleApps.size,
-                            state.visibleApps.size,
-                        ),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                    )
-                },
-                onRefresh = onRefresh,
-                onExtract = onExtract,
-                onStartSelection = onStartSelection,
-                onToggleSelection = onToggleSelection,
-                modifier = Modifier
-                    .widthIn(max = AdaptiveContentMaxWidth)
-                    .fillMaxSize()
-                    .consumeWindowInsets(innerPadding),
-            )
+                }
+            }
         }
     }
 
@@ -542,13 +668,14 @@ fun ApkExtractorScreen(
             onStartSelection = { packageName ->
                 scope.launch {
                     searchBarState.animateToCollapsed()
+                    selectionAnchor = packageName
                     onStartSelection(packageName)
                 }
             },
             onToggleSelection = { packageName ->
                 scope.launch {
                     searchBarState.animateToCollapsed()
-                    onToggleSelection(packageName)
+                    selectApp(packageName)
                 }
             },
             onExtract = { app ->
@@ -557,6 +684,7 @@ fun ApkExtractorScreen(
                     onExtract(app)
                 }
             },
+            onRangeSelection = selectRange,
         )
     }
 
@@ -587,7 +715,7 @@ fun ApkExtractorScreen(
 
 @Composable
 private fun PrivacyAndLicensesDialog(onDismissRequest: () -> Unit) {
-    AlertDialog(
+    XrAlertDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(stringResource(R.string.privacy_and_licenses)) },
         text = {
@@ -609,7 +737,7 @@ private fun PrivacyAndLicensesDialog(onDismissRequest: () -> Unit) {
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismissRequest) {
+            TextButton(modifier = Modifier.xrActionSize(), onClick = onDismissRequest) {
                 Text(stringResource(R.string.done))
             }
         },
@@ -619,6 +747,60 @@ private fun PrivacyAndLicensesDialog(onDismissRequest: () -> Unit) {
 internal fun shouldUseDockedSearch(windowSizeClass: WindowSizeClass): Boolean =
     windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND) &&
         windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
+
+internal fun shouldShowExportPane(windowSizeClass: WindowSizeClass): Boolean =
+    windowSizeClass.isWidthAtLeastBreakpoint(1200) &&
+        windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
+
+@Composable
+internal fun ExportSupportingPane(
+    state: AppUiState,
+    onChooseFolder: () -> Unit,
+    onOpenFolder: () -> Unit,
+    onShowLastResult: () -> Unit,
+    onShareLastResult: () -> Unit,
+    modifier: Modifier,
+) {
+    val scrollState = rememberScrollState()
+    val scrollbar = scrollState.scrollIndicatorState?.let {
+        Modifier.nonInteractiveScrollbar(it, Orientation.Vertical)
+    } ?: Modifier
+    Column(modifier.verticalScroll(scrollState).then(scrollbar), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        OutlinedCard(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(R.string.export_folder), style = MaterialTheme.typography.titleMedium)
+                Text(state.outputFolderName ?: stringResource(R.string.no_export_folder),
+                    style = MaterialTheme.typography.bodyMedium)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (state.outputFolder != null) {
+                        TextButton(modifier = Modifier.xrActionSize(), onClick = onOpenFolder) {
+                            Text(stringResource(R.string.open_folder_action))
+                        }
+                    }
+                    TextButton(modifier = Modifier.xrActionSize(), onClick = onChooseFolder, enabled = !state.isExporting) {
+                        Text(stringResource(if (state.outputFolder == null) R.string.choose_folder else R.string.change_folder_action))
+                    }
+                }
+            }
+        }
+        state.lastResult?.let { result ->
+            OutlinedCard(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.last_export), style = MaterialTheme.typography.titleMedium)
+                    Text(pluralStringResource(R.plurals.result_saved, result.files.size, result.files.size))
+                    if (result.failures.isNotEmpty()) {
+                        Text(pluralStringResource(R.plurals.result_failed, result.failures.size, result.failures.size))
+                    }
+                    if (result.files.isNotEmpty()) ExportFileDragTile(result.files)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton(modifier = Modifier.xrActionSize(), onClick = onShowLastResult) { Text(stringResource(R.string.view_result)) }
+                        if (result.files.isNotEmpty()) TextButton(modifier = Modifier.xrActionSize(), onClick = onShareLastResult) { Text(stringResource(R.string.share)) }
+                    }
+                }
+            }
+        }
+    }
+}
 
 internal fun adaptiveSearchWidth(windowWidth: Dp) =
     (minOf(windowWidth, AdaptiveContentMaxWidth) - ContentHorizontalPadding * 2)
@@ -634,6 +816,7 @@ private fun AppList(
     onExtract: (InstalledApp) -> Unit,
     onStartSelection: (String) -> Unit,
     onToggleSelection: (String) -> Unit,
+    onRangeSelection: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (state.loading) {
@@ -655,8 +838,14 @@ private fun AppList(
         return
     }
 
+    val listState = rememberLazyListState()
+    val scrollbar = listState.scrollIndicatorState?.let {
+        Modifier.nonInteractiveScrollbar(it, Orientation.Vertical,
+            mainAxisTrackInset = contentPadding.calculateTopPadding() + 8.dp)
+    } ?: Modifier
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        state = listState,
+        modifier = modifier.fillMaxSize().then(scrollbar),
         contentPadding = contentPadding,
     ) {
         item(key = "header") {
@@ -698,6 +887,8 @@ private fun AppList(
                             onStartSelection(app.packageName)
                         }
                     },
+                    onContextExtract = { onExtract(app) },
+                    onRangeSelection = { onRangeSelection(app.packageName) },
                     modifier = Modifier.padding(
                         horizontal = 16.dp,
                         vertical = ListItemDefaults.SegmentedGap / 2,
@@ -728,6 +919,7 @@ private fun SearchResults(
     onStartSelection: (String) -> Unit,
     onToggleSelection: (String) -> Unit,
     onExtract: (InstalledApp) -> Unit,
+    onRangeSelection: (String) -> Unit,
 ) {
     if (apps.isEmpty()) {
         EmptyState()
@@ -736,9 +928,15 @@ private fun SearchResults(
     val resultContainerColor = MaterialTheme.colorScheme.surface
     val bottomInsets = WindowInsets.safeDrawing.union(WindowInsets.ime)
         .only(WindowInsetsSides.Bottom)
+    val listState = rememberLazyListState()
+    val scrollbar = listState.scrollIndicatorState?.let {
+        Modifier.nonInteractiveScrollbar(it, Orientation.Vertical)
+    } ?: Modifier
     LazyColumn(
+        state = listState,
         modifier = Modifier
             .fillMaxSize()
+            .then(scrollbar)
             .consumeWindowInsets(bottomInsets),
         contentPadding = PaddingValues(
             top = 8.dp,
@@ -775,6 +973,8 @@ private fun SearchResults(
                         onStartSelection(app.packageName)
                     }
                 },
+                onContextExtract = { onExtract(app) },
+                onRangeSelection = { onRangeSelection(app.packageName) },
                 modifier = Modifier.padding(
                     horizontal = 16.dp,
                     vertical = ListItemDefaults.SegmentedGap / 2,
@@ -794,19 +994,48 @@ private fun AppFilterButtons(
         AppFilter.System to stringResource(R.string.system_apps),
         AppFilter.All to stringResource(R.string.all_apps),
     )
+    val isXr = LocalXrUi.current.isXr
     ButtonGroup(
         overflowIndicator = { menuState ->
             ButtonGroupDefaults.OverflowIndicator(menuState = menuState)
         },
         modifier = Modifier.fillMaxWidth(),
     ) {
+        val groupScope = this
         AppFilter.entries.forEach { filter ->
-            toggleableItem(
-                checked = selected == filter,
-                label = labels.getValue(filter),
-                onCheckedChange = { checked -> if (checked) onSelected(filter) },
-                weight = 1f,
-            )
+            if (isXr) {
+                // The built-in DSL uses 48dp targets. Keep Material's toggle and group
+                // press animation, with an explicit 56dp target for hand-ray input.
+                customItem(
+                    buttonGroupContent = {
+                        val interactions = remember { MutableInteractionSource() }
+                        ToggleButton(
+                            checked = selected == filter,
+                            onCheckedChange = { checked -> if (checked) onSelected(filter) },
+                            modifier = with(groupScope) {
+                                Modifier.heightIn(min = 56.dp).weight(1f).animateWidth(interactions)
+                            },
+                            interactionSource = interactions,
+                        ) { Text(labels.getValue(filter), maxLines = 1) }
+                    },
+                    menuContent = { menuState ->
+                        SelectableDropdownMenuItem(
+                            selected = selected == filter,
+                            shapes = MenuDefaults.itemShape(filter.ordinal, AppFilter.entries.size),
+                            modifier = Modifier.heightIn(min = 56.dp),
+                            onClick = { onSelected(filter); menuState.dismiss() },
+                            text = { Text(labels.getValue(filter)) },
+                        )
+                    },
+                )
+            } else {
+                toggleableItem(
+                    checked = selected == filter,
+                    label = labels.getValue(filter),
+                    onCheckedChange = { checked -> if (checked) onSelected(filter) },
+                    weight = 1f,
+                )
+            }
         }
     }
 }
@@ -825,10 +1054,22 @@ internal fun AppRow(
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
     unselectedContainerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+    onContextExtract: () -> Unit = onClick,
+    onRangeSelection: () -> Unit = onLongClick,
 ) {
+    val selectDescription = stringResource(
+        if (selected) R.string.deselect_app else R.string.select_app, app.label,
+    )
     val colorScheme = MaterialTheme.colorScheme
+    val interactionSource = remember { MutableInteractionSource() }
+    val focused by interactionSource.collectIsFocusedAsState()
+    val hovered by interactionSource.collectIsHoveredAsState()
     val containerColor by animateColorAsState(
-        targetValue = if (selected) colorScheme.secondaryContainer else unselectedContainerColor,
+        targetValue = when {
+            selected -> colorScheme.secondaryContainer
+            hovered && enabled -> colorScheme.surfaceContainerHighest
+            else -> unselectedContainerColor
+        },
         animationSpec = MaterialTheme.motionScheme.fastEffectsSpec(),
         label = "list item container",
     )
@@ -845,107 +1086,132 @@ internal fun AppRow(
     val defaultShapes = ListItemDefaults.segmentedShapes(index = index, count = count)
     val shape = if (selected) defaultShapes.selectedShape else defaultShapes.shape
 
-    SegmentedListItem(
-        shapes = defaultShapes.copy(shape = shape),
-        colors = ListItemDefaults.colors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            leadingContentColor = supportingContentColor,
-            supportingContentColor = supportingContentColor,
-            disabledContainerColor = unselectedContainerColor,
-        ),
-        leadingContent = {
-            Box(
-                modifier = Modifier.size(56.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (app.icon != null) {
-                    Image(
-                        bitmap = app.icon,
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                } else {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_download),
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp),
+    DesktopRowActions(
+        modifier = modifier,
+        appLabel = app.label,
+        selected = selected,
+        enabled = enabled,
+        onExtract = onContextExtract,
+        onSelect = onLongClick,
+        onRangeSelect = onRangeSelection,
+    ) { desktopModifier ->
+        SegmentedListItem(
+            shapes = defaultShapes.copy(shape = shape),
+            colors = ListItemDefaults.colors(
+                containerColor = containerColor,
+                contentColor = contentColor,
+                leadingContentColor = supportingContentColor,
+                supportingContentColor = supportingContentColor,
+                disabledContainerColor = unselectedContainerColor,
+            ),
+            trailingContent = if (LocalXrUi.current.isXr) {
+                {
+                    androidx.compose.material3.Checkbox(
+                        checked = selected,
+                        onCheckedChange = { if (selectionMode) onClick() else onLongClick() },
+                        enabled = enabled,
+                        modifier = Modifier.size(56.dp).semantics {
+                            contentDescription = selectDescription
+                        },
                     )
                 }
-            }
-        },
-        modifier = modifier
-            .fillMaxWidth()
-            // Preserve Material's three-line minimum with the single content slot.
-            .heightIn(min = 88.dp)
-            .clip(shape)
-            .semantics {
-                if (selectionMode) this.selected = selected
-            }
-            .combinedClickable(
-                enabled = enabled,
-                onClickLabel = stringResource(
-                    when {
-                        !selectionMode -> R.string.extract_app
-                        selected -> R.string.deselect_app
-                        else -> R.string.select_app
+            } else null,
+            leadingContent = {
+                Box(
+                    modifier = Modifier.size(56.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (app.icon != null) {
+                        Image(
+                            bitmap = app.icon,
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_download),
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp),
+                        )
+                    }
+                }
+            },
+            modifier = desktopModifier
+                .fillMaxWidth()
+                // Preserve Material's three-line minimum with the single content slot.
+                .heightIn(min = 88.dp)
+                .clip(shape)
+                .then(if (focused && enabled) Modifier.border(2.dp, colorScheme.primary, shape) else Modifier)
+                .semantics {
+                    if (selectionMode) this.selected = selected
+                }
+                .combinedClickable(
+                    enabled = enabled,
+                    interactionSource = interactionSource,
+                    indication = androidx.compose.material3.ripple(),
+                    onClickLabel = stringResource(
+                        when {
+                            !selectionMode -> R.string.extract_app
+                            selected -> R.string.deselect_app
+                            else -> R.string.select_app
+                        },
+                        app.label,
+                    ),
+                    onLongClickLabel = stringResource(R.string.select_app, app.label),
+                    role = if (selectionMode) Role.Checkbox else Role.Button,
+                    onLongClick = onLongClick,
+                    onClick = onClick,
+                ),
+        ) {
+            // Keep all row text in the main slot: Material's supporting slot queries
+            // descendant baselines during measurement, triggering RectManager crashes.
+            Column {
+                Text(
+                    text = app.label,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = app.packageName,
+                    style = MaterialTheme.typography.bodyMedium.copy(textDirection = androidx.compose.ui.text.style.TextDirection.Ltr),
+                    color = supportingContentColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = supportingContentColor,
+                    text = buildString {
+                        append(androidx.core.text.BidiFormatter.getInstance().unicodeWrap(app.versionName))
+                        append(" · ")
+                        append(androidx.core.text.BidiFormatter.getInstance().unicodeWrap(android.text.format.Formatter.formatShortFileSize(LocalContext.current, app.totalBytes)))
+                        append(" · ")
+                        append(stringResource(if (app.isSplit) R.string.split_apk else R.string.single_apk))
                     },
-                    app.label,
-                ),
-                onLongClickLabel = stringResource(R.string.select_app, app.label),
-                role = if (selectionMode) Role.Checkbox else Role.Button,
-                onLongClick = onLongClick,
-                onClick = onClick,
-            ),
-    ) {
-        // Keep all row text in the main slot: Material's supporting slot queries
-        // descendant baselines during measurement, triggering RectManager crashes.
-        Column {
-            Text(
-                text = app.label,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = app.packageName,
-                style = MaterialTheme.typography.bodyMedium.copy(textDirection = androidx.compose.ui.text.style.TextDirection.Ltr),
-                color = supportingContentColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                style = MaterialTheme.typography.bodyMedium,
-                color = supportingContentColor,
-                text = buildString {
-                    append(androidx.core.text.BidiFormatter.getInstance().unicodeWrap(app.versionName))
-                    append(" · ")
-                    append(androidx.core.text.BidiFormatter.getInstance().unicodeWrap(android.text.format.Formatter.formatShortFileSize(LocalContext.current, app.totalBytes)))
-                    append(" · ")
-                    append(stringResource(if (app.isSplit) R.string.split_apk else R.string.single_apk))
-                },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            AnimatedVisibility(
-                visible = exporting,
-                enter = fadeIn(
-                    animationSpec = MaterialTheme.motionScheme.fastEffectsSpec(),
-                ) + expandVertically(
-                    animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
-                ),
-                exit = fadeOut(
-                    animationSpec = MaterialTheme.motionScheme.fastEffectsSpec(),
-                ) + shrinkVertically(
-                    animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
-                ),
-            ) {
-                Column {
-                    Spacer(Modifier.height(8.dp))
-                    LinearWavyProgressIndicator(
-                        progress = { exportProgress },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                AnimatedVisibility(
+                    visible = exporting,
+                    enter = fadeIn(
+                        animationSpec = MaterialTheme.motionScheme.fastEffectsSpec(),
+                    ) + expandVertically(
+                        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
+                    ),
+                    exit = fadeOut(
+                        animationSpec = MaterialTheme.motionScheme.fastEffectsSpec(),
+                    ) + shrinkVertically(
+                        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
+                    ),
+                ) {
+                    Column {
+                        Spacer(Modifier.height(8.dp))
+                        LinearWavyProgressIndicator(
+                            progress = { exportProgress },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
             }
         }

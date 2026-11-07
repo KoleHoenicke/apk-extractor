@@ -19,7 +19,9 @@
     <string name="loading_apps">Cargando apps instaladas</string>
     <string name="no_apps">No se encontraron apps</string>
     <string name="no_apps_detail">Prueba otra búsqueda o filtro de apps.</string>
-    <string name="split_apk">APK dividido</string>
+    <string name="split_apk">APK divididos · ZIP</string>
+    <string name="split_export_title">Exportación de APK divididos</string>
+    <string name="split_export_detail">Esta app está instalada como varios APK. El ZIP guardado contiene el APK base y sus partes, por lo que no se puede instalar tocando el ZIP. Para reinstalarla, extrae todos los archivos y usa un instalador de APK divididos que los instale juntos.</string>
     <string name="export_complete">Se guardó %1$s</string>
     <string name="export_failed">No se pudo extraer %1$s</string>
     <string name="share">Compartir</string>
@@ -96,4 +98,13 @@
     <string name="export_success_title">Exportación completada</string>
     <string name="open_folder_action">Abrir carpeta</string>
     <string name="change_folder_action">Cambiar</string>
+    <string name="keyboard_shortcut_select_all">Seleccionar todas las apps visibles</string>
+    <string name="keyboard_shortcut_toggle">Seleccionar o deseleccionar la app enfocada</string>
+    <string name="keyboard_shortcut_menu">Abrir acciones de la app</string>
+    <string name="new_window">Nueva ventana</string>
+    <plurals name="exported_files">
+        <item quantity="one">%d archivo exportado</item>
+        <item quantity="other">%d archivos exportados</item>
+    </plurals>
+    <string name="xr_export_workspace">Espacio de exportación</string>
 </resources>

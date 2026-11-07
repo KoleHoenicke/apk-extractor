@@ -9,13 +9,8 @@ internal fun createShareChooserIntent(
     context: Context,
     files: List<ExportedFile>,
 ): Intent? {
-    if (files.isEmpty()) return null
-
-    val mimeType = when {
-        files.all(ExportedFile::isSplitArchive) -> "application/zip"
-        files.none(ExportedFile::isSplitArchive) -> "application/vnd.android.package-archive"
-        else -> "application/octet-stream"
-    }
+    val exportedClip = createExportClipData(files) ?: return null
+    val mimeType = exportedClip.description.getMimeType(0)
     val sendIntent = Intent(
         if (files.size == 1) Intent.ACTION_SEND else Intent.ACTION_SEND_MULTIPLE,
     ).apply {
@@ -28,13 +23,7 @@ internal fun createShareChooserIntent(
                 ArrayList(files.map(ExportedFile::uri)),
             )
         }
-        clipData = ClipData.newUri(
-            context.contentResolver,
-            files.first().displayName,
-            files.first().uri,
-        ).apply {
-            files.drop(1).forEach { file -> addItem(ClipData.Item(file.uri)) }
-        }
+        clipData = exportedClip
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
 
@@ -43,3 +32,15 @@ internal fun createShareChooserIntent(
     }
 }
 
+internal fun createExportClipData(files: List<ExportedFile>): ClipData? {
+    if (files.isEmpty()) return null
+    val mimeType = when {
+        files.all(ExportedFile::isSplitArchive) -> "application/zip"
+        files.none(ExportedFile::isSplitArchive) -> "application/vnd.android.package-archive"
+        else -> "application/octet-stream"
+    }
+    // Some document providers reject stream-type queries. Export MIME types are already known.
+    return ClipData(files.first().displayName, arrayOf(mimeType), ClipData.Item(files.first().uri)).apply {
+        files.drop(1).forEach { addItem(ClipData.Item(it.uri)) }
+    }
+}

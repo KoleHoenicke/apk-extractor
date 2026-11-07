@@ -26,6 +26,7 @@ data class ExportedFile(
     val displayName: String,
     val isSplitArchive: Boolean,
     val appLabel: String = displayName,
+    val packageName: String? = null,
 )
 
 class ApkExporter(private val context: Context) {
@@ -74,7 +75,7 @@ class ApkExporter(private val context: Context) {
                 }
             }
             currentCoroutineContext().ensureActive()
-            val file = ExportedFile(document.uri, document.name ?: displayName, app.isSplit, app.label)
+            val file = ExportedFile(document.uri, document.name ?: displayName, app.isSplit, app.label, app.packageName)
             resultStore.saved(app.packageName, file)
             onProgress(1f)
             file

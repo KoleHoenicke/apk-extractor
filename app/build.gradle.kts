@@ -16,8 +16,8 @@ android {
         applicationId = "com.kolehoenicke.apkextractor"
         minSdk = 26
         targetSdk = 37
-        versionCode = 5
-        versionName = "1.0.3"
+        versionCode = 10
+        versionName = "1.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -75,6 +75,13 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material3:material3:1.5.0-alpha28")
     implementation("androidx.compose.material3.adaptive:adaptive:1.3.0")
+    // Optional spatial UI. The same APK retains its phone/tablet/desktop UI.
+    implementation("androidx.xr.runtime:runtime:1.1.0-alpha01")
+    implementation("androidx.xr.scenecore:scenecore:1.0.0-rc02")
+    implementation("androidx.xr.compose:compose:1.0.0-beta01")
+    implementation("androidx.xr.compose.material3:material3:1.0.0-alpha17")
+    // XR extension classes are supplied by the platform, including in minified builds.
+    compileOnly("com.android.extensions.xr:extensions-xr:1.3.0")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.core:core-ktx:1.19.0")

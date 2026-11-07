@@ -24,6 +24,8 @@ class LocalizationTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val manager = context.getSystemService(LocaleManager::class.java)
         val original = manager.applicationLocales
+        val preferences = context.getSharedPreferences("preferences", android.content.Context.MODE_PRIVATE)
+        val originalSort = preferences.getString("sort", null)
         try {
             val supported = requireNotNull(LocaleConfig(context).supportedLocales)
             assertEquals(setOf("en", "es", "pt", "fr", "ar", "fa"), (0 until supported.size()).map { supported[it].language }.toSet())
@@ -40,7 +42,7 @@ class LocalizationTest {
                 val pluralIds = listOf(R.plurals.app_count, R.plurals.selected_count,
                     R.plurals.export_complete_count, R.plurals.export_failed_count,
                     R.plurals.export_partial, R.plurals.notification_extracting_apps,
-                    R.plurals.result_saved, R.plurals.result_failed)
+                    R.plurals.result_saved, R.plurals.result_failed, R.plurals.exported_files)
                 for (id in pluralIds) for (count in listOf(0, 1, 2, 3, 11, 100, 1_000_000)) {
                     assertFalse(rule.activity.resources.getQuantityString(id, count, count, count).contains("%"))
                 }
@@ -51,7 +53,12 @@ class LocalizationTest {
                 saveLocalizationScreenshot("locale-$tag-sort")
                 rule.onNodeWithText(rule.activity.getString(R.string.sort_recent)).performClick()
             }
-        } finally { manager.applicationLocales = original }
+        } finally {
+            manager.applicationLocales = original
+            preferences.edit().apply {
+                if (originalSort == null) remove("sort") else putString("sort", originalSort)
+            }.commit()
+        }
     }
 }
 
@@ -59,10 +66,7 @@ internal fun saveLocalizationScreenshot(name: String) {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     instrumentation.uiAutomation.waitForIdle(500, 5_000)
     val bitmap = requireNotNull(instrumentation.uiAutomation.takeScreenshot())
-    val file = java.io.File(instrumentation.targetContext.getExternalFilesDir(null), "$name.png")
+    val file = java.io.File(instrumentation.targetContext.filesDir, "$name.png")
     file.outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
     bitmap.recycle()
-    instrumentation.uiAutomation.executeShellCommand("cp ${file.absolutePath} /data/local/tmp/$name.png").use {
-        android.os.ParcelFileDescriptor.AutoCloseInputStream(it).use { stream -> stream.readBytes() }
-    }
 }

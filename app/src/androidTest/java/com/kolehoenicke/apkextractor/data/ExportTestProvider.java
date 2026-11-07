@@ -3,6 +3,7 @@ package com.kolehoenicke.apkextractor.data;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
@@ -22,6 +23,12 @@ public class ExportTestProvider extends DocumentsProvider {
         return root;
     }
     @Override public boolean onCreate() { return true; }
+    @Override public String[] getStreamTypes(Uri uri, String mimeTypeFilter) {
+        if ("rejected-stream-types.apk".equals(uri.getLastPathSegment())) {
+            throw new IllegalArgumentException("Stream-type queries unsupported");
+        }
+        return super.getStreamTypes(uri, mimeTypeFilter);
+    }
     @Override public Bundle call(String method, String arg, Bundle extras) {
         if (method.equals("grantTestTree")) {
             getContext().grantUriPermission("com.kolehoenicke.apkextractor",

@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.kolehoenicke.apkextractor.data.AppCatalog
 import com.kolehoenicke.apkextractor.data.AppSort
@@ -54,11 +55,16 @@ sealed interface UiEvent {
 
 data class ExportFailure(val appLabel: String, val reason: String, val packageName: String = "")
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel @JvmOverloads constructor(
+    application: Application,
+    private val savedStateHandle: SavedStateHandle = SavedStateHandle(),
+) : AndroidViewModel(application) {
     private val catalog = AppCatalog(application)
     private val folderStore = OutputFolderStore(application)
     private val eventsChannel = Channel<UiEvent>(Channel.BUFFERED)
     private var refreshJob: Job? = null
+    private var ownsExtraction = false
+    private var resultRevision = 0
 
     private val resultStore = ExportResultStore(application)
     private val preferences = application.getSharedPreferences("preferences", android.content.Context.MODE_PRIVATE)
@@ -66,22 +72,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _state = MutableStateFlow(
         AppUiState(
             outputFolder = initialFolder,
-            sort = runCatching { AppSort.valueOf(preferences.getString("sort", "Name")!!) }.getOrDefault(AppSort.Name),
+            sort = readSort(),
             lastResult = resultStore.read(),
+            query = savedStateHandle["query"] ?: "",
+            filter = runCatching { AppFilter.valueOf(savedStateHandle["filter"] ?: "User") }
+                .getOrDefault(AppFilter.User),
+            selectedPackages = savedStateHandle.get<ArrayList<String>>("selection")?.toSet().orEmpty(),
         ),
     )
     val state: StateFlow<AppUiState> = _state.asStateFlow()
     val events = eventsChannel.receiveAsFlow()
+    private val sortListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == "sort" || key == null) {
+            _state.update { it.copy(sort = readSort()) }
+        }
+    }
+
+    private fun readSort() = runCatching {
+        AppSort.valueOf(preferences.getString("sort", "Name")!!)
+    }.getOrDefault(AppSort.Name)
 
     init {
+        preferences.registerOnSharedPreferenceChangeListener(sortListener)
         viewModelScope.launch {
+            folderStore.observe().collect { folder ->
+                _state.update { it.copy(outputFolder = folder) }
+                refreshFolderName(folder)
+            }
+        }
+        viewModelScope.launch {
+            val revision = resultRevision
             val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                 if (!ExtractionSession.state.value.isActive) resultStore.recoverInterrupted()
                 resultStore.read()
             }
-            _state.update { it.copy(lastResult = result) }
+            if (revision == resultRevision) _state.update { it.copy(lastResult = result) }
         }
-        refreshFolderName(initialFolder)
         refresh()
         viewModelScope.launch {
             ExtractionSession.state.collectLatest { extraction ->
@@ -95,11 +121,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         viewModelScope.launch {
             ExtractionSession.events.collect { event ->
+                resultRevision++
                 if (folderStore.get() == null) {
                     _state.update { it.copy(outputFolder = null, outputFolderName = null) }
                 }
                 _state.update { it.copy(lastResult = event as? UiEvent.ExportFinished) }
-                eventsChannel.send(event)
+                // All windows see the result; only the initiating window shows completion UI
+                // and records a successful session for the in-app review prompt.
+                if (ownsExtraction) {
+                    ownsExtraction = false
+                    eventsChannel.send(event)
+                }
             }
         }
     }
@@ -123,8 +155,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             selectedPackages = it.selectedPackages.intersect(installedPackages),
                         )
                     }
+                    persistSelection()
                 }
                 .onFailure { failure ->
+                    // A newer refresh owns the UI. Cancellation is not a catalog failure.
+                    if (failure is kotlinx.coroutines.CancellationException) throw failure
                     _state.update {
                         it.copy(
                             loading = false,
@@ -155,10 +190,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setFilter(filter: AppFilter) {
+        savedStateHandle["filter"] = filter.name
         _state.update { it.copy(filter = filter) }
     }
 
     fun setQuery(query: String) {
+        savedStateHandle["query"] = query
         _state.update { it.copy(query = query) }
     }
 
@@ -171,6 +208,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun startSelection(packageName: String) {
         if (_state.value.isExporting) return
         _state.update { it.copy(selectedPackages = setOf(packageName)) }
+        persistSelection()
     }
 
     fun toggleSelection(packageName: String) {
@@ -180,16 +218,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (!selected.add(packageName)) selected.remove(packageName)
             current.copy(selectedPackages = selected)
         }
+        persistSelection()
     }
 
     fun clearSelection() {
         _state.update { it.copy(selectedPackages = emptySet()) }
+        persistSelection()
     }
 
-    fun extract(apps: List<InstalledApp>) {
-        val folder = _state.value.outputFolder ?: return
+    fun setSelection(packageNames: Set<String>) {
         if (_state.value.isExporting) return
-        if (!ExtractionService.start(getApplication(), apps, folder)) {
+        _state.update { current ->
+            val installed = current.apps.mapTo(mutableSetOf(), InstalledApp::packageName)
+            current.copy(selectedPackages = packageNames.intersect(installed))
+        }
+        persistSelection()
+    }
+
+    private fun persistSelection() {
+        savedStateHandle["selection"] = ArrayList(_state.value.selectedPackages)
+    }
+
+    fun extract(apps: List<InstalledApp>): Boolean {
+        val folder = _state.value.outputFolder ?: return false
+        if (_state.value.isExporting || ExtractionSession.state.value.isActive) return false
+        ownsExtraction = ExtractionService.start(getApplication(), apps, folder)
+        if (!ownsExtraction) {
             viewModelScope.launch {
                 val event = UiEvent.ExportFinished(
                         files = emptyList(),
@@ -207,6 +261,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 eventsChannel.send(event)
             }
         }
+        return ownsExtraction
+    }
+
+    override fun onCleared() {
+        preferences.unregisterOnSharedPreferenceChangeListener(sortListener)
+        super.onCleared()
     }
 
 }

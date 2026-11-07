@@ -164,7 +164,7 @@ class ExtractionService : Service() {
         } catch (cancellation: CancellationException) {
             withContext(NonCancellable) {
                 val store = ExportResultStore(this@ExtractionService)
-                runCatching { store.recoverInterrupted() }
+                runCatching { store.recoverInterrupted(recoverActiveSession = true) }
                 store.read()?.let { ExtractionSession.finish(it) }
                 ExtractionSession.clear()
                 stopForeground(STOP_FOREGROUND_REMOVE)
@@ -174,7 +174,7 @@ class ExtractionService : Service() {
         } catch (failure: Exception) {
             if (failure is SecurityException) OutputFolderStore(this).clear()
             val store = ExportResultStore(this)
-            runCatching { store.recoverInterrupted() }
+            runCatching { store.recoverInterrupted(recoverActiveSession = true) }
             val result = store.read() ?: UiEvent.ExportFinished(
                 files = emptyList(),
                 requestedCount = packageNames.size,

@@ -15,12 +15,16 @@ import java.util.UUID
 import java.util.zip.ZipInputStream
 
 class ExportReliabilityTest {
+    private var originalResult: String? = null
     @org.junit.Before fun allowTestProvider() {
-        InstrumentationRegistry.getInstrumentation().uiAutomation.adoptShellPermissionIdentity("android.permission.MANAGE_DOCUMENTS")
-        context.contentResolver.call(folder, "grantTestTree", null, null)
-        InstrumentationRegistry.getInstrumentation().uiAutomation.dropShellPermissionIdentity()
+        originalResult = context.getSharedPreferences("last_export", android.content.Context.MODE_PRIVATE)
+            .getString("result", null)
+        grantExportTestTree()
     }
     @org.junit.After fun restorePermissions() {
+        context.getSharedPreferences("last_export", android.content.Context.MODE_PRIVATE).edit().apply {
+            if (originalResult == null) remove("result") else putString("result", originalResult)
+        }.commit()
         InstrumentationRegistry.getInstrumentation().uiAutomation.dropShellPermissionIdentity()
     }
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -36,6 +40,7 @@ class ExportReliabilityTest {
         val file = ApkExporter(context).export(app, folder) {}
         store.finish()
         assertArrayEquals(source.readBytes(), context.contentResolver.openInputStream(file.uri)!!.use { it.readBytes() })
+        assertEquals(app.packageName, file.packageName)
         assertEquals(file, ExportResultStore(context).read()!!.files.single())
         assertEquals(folder, store.read()!!.outputFolder)
         DocumentFile.fromSingleUri(context, file.uri)!!.delete()

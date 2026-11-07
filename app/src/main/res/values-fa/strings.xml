@@ -19,7 +19,9 @@
     <string name="loading_apps">در حال بارگذاری برنامه‌های نصب‌شده</string>
     <string name="no_apps">برنامه‌ای یافت نشد</string>
     <string name="no_apps_detail">جستجو یا فیلتر دیگری را امتحان کنید.</string>
-    <string name="split_apk">APK چندبخشی</string>
+    <string name="split_apk">APKهای چندبخشی · ZIP</string>
+    <string name="split_export_title">خروجی APK چندبخشی</string>
+    <string name="split_export_detail">این برنامه به‌صورت چند APK نصب شده است. فایل ZIP ذخیره‌شده شامل APK پایه و بخش‌های آن است، بنابراین با لمس فایل ZIP قابل نصب نیست. برای نصب دوباره، همه فایل‌ها را استخراج کنید و از نصب‌کننده APK چندبخشی استفاده کنید که آن‌ها را هم‌زمان نصب کند.</string>
     <string name="export_complete">\u2068%1$s\u2069 ذخیره شد</string>
     <string name="export_failed">استخراج \u2068%1$s\u2069 ممکن نشد</string>
     <string name="share">اشتراک‌گذاری</string>
@@ -88,4 +90,13 @@
     <string name="export_success_title">خروجی ذخیره شد</string>
     <string name="open_folder_action">باز کردن پوشه</string>
     <string name="change_folder_action">تغییر</string>
+    <string name="keyboard_shortcut_select_all">انتخاب همهٔ برنامه‌های قابل مشاهده</string>
+    <string name="keyboard_shortcut_toggle">انتخاب یا لغو انتخاب برنامهٔ دارای تمرکز</string>
+    <string name="keyboard_shortcut_menu">باز کردن عملکردهای برنامه</string>
+    <string name="new_window">پنجرهٔ جدید</string>
+    <plurals name="exported_files">
+        <item quantity="one">%d فایل صادرشده</item>
+        <item quantity="other">%d فایل صادرشده</item>
+    </plurals>
+    <string name="xr_export_workspace">فضای خروجی</string>
 </resources>

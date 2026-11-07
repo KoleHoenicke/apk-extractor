@@ -19,7 +19,9 @@
     <string name="loading_apps">Chargement des applis installées</string>
     <string name="no_apps">Aucune appli trouvée</string>
     <string name="no_apps_detail">Essayez une autre recherche ou un autre filtre.</string>
-    <string name="split_apk">APK fractionné</string>
+    <string name="split_apk">APK fractionnés · ZIP</string>
+    <string name="split_export_title">Exportation d’APK fractionnés</string>
+    <string name="split_export_detail">Cette appli est installée sous forme de plusieurs APK. Le ZIP enregistré contient l’APK de base et ses modules ; il ne peut donc pas être installé en touchant le ZIP. Pour la réinstaller, extrayez tous les fichiers et utilisez un installateur d’APK fractionnés qui les installe ensemble.</string>
     <string name="export_complete">%1$s enregistré</string>
     <string name="export_failed">Impossible d’extraire %1$s</string>
     <string name="share">Partager</string>
@@ -96,4 +98,13 @@
     <string name="export_success_title">Exportation terminée</string>
     <string name="open_folder_action">Ouvrir le dossier</string>
     <string name="change_folder_action">Changer</string>
+    <string name="keyboard_shortcut_select_all">Sélectionner toutes les applications visibles</string>
+    <string name="keyboard_shortcut_toggle">Sélectionner ou désélectionner l’application ciblée</string>
+    <string name="keyboard_shortcut_menu">Ouvrir les actions de l’application</string>
+    <string name="new_window">Nouvelle fenêtre</string>
+    <plurals name="exported_files">
+        <item quantity="one">%d fichier exporté</item>
+        <item quantity="other">%d fichiers exportés</item>
+    </plurals>
+    <string name="xr_export_workspace">Espace d’exportation</string>
 </resources>

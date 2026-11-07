@@ -33,8 +33,10 @@ class ExportResultStore(private val context: Context) {
         load()?.let { write(it.put("active", false)) }
     }
 
-    /** Only called off the main thread when no extraction is running in this process. */
-    fun recoverInterrupted() = synchronized(Lock) {
+    /** The export service may recover its own stopped job; a new window must leave it alone. */
+    fun recoverInterrupted(recoverActiveSession: Boolean = false) = synchronized(Lock) {
+        // A second window may open between the caller's check and journal access.
+        if (!recoverActiveSession && ExtractionSession.state.value.isActive) return@synchronized
         val json = load() ?: return@synchronized
         if (!json.optBoolean("active")) return@synchronized
         val items = json.getJSONArray("items")
@@ -60,7 +62,7 @@ class ExportResultStore(private val context: Context) {
         val items = json.getJSONArray("items")
         for (index in 0 until items.length()) {
             val item = items.getJSONObject(index)
-            if (item.has("uri")) files += ExportedFile(Uri.parse(item.getString("uri")), item.getString("name"), item.optBoolean("split"), item.optString("label", item.getString("name")))
+            if (item.has("uri")) files += ExportedFile(Uri.parse(item.getString("uri")), item.getString("name"), item.optBoolean("split"), item.optString("label", item.getString("name")), item.optString("package").takeIf(String::isNotBlank))
             else failures += ExportFailure(item.getString("label"), item.optString("error", context.getString(R.string.export_interrupted)), item.getString("package"))
         }
         UiEvent.ExportFinished(files, items.length(), failures, Uri.parse(json.getString("folder")))

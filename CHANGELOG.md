@@ -2,6 +2,30 @@
 
 Notable changes to APK Extractor are documented here.
 
+## 1.0.6
+
+- Add native Android XR support with a curved app panel and a separate export workspace.
+- Allow switching between Home Space and Full Space while retaining app state, and let users move and resize spatial panels.
+- Use larger controls, readable text, and spatial dialogs on XR.
+- Keep export reports scrollable with their actions reachable, and round the export workspace's content corners.
+
+## 1.0.5
+
+- Add independent desktop windows with New window and Ctrl/Cmd+Shift+N, synchronized export settings and progress, and window-specific saved search and selection.
+- Add native file drag and drop for individual exports or a completed batch, with read-only file access. Material file rows show the filename or batch count, the source app icon when available, hover feedback, and a matching native drag preview.
+- Fix Sort by submenu placement in floating windows, including window edges and RTL layouts.
+- Add an export-folder and last-result pane in wide desktop windows.
+- Add mouse hover, visible keyboard focus, and tooltips for toolbar actions.
+- Add right-click and Shift+F10 context menus, Ctrl/Cmd-click selection, and Shift-click range selection.
+- Add Ctrl/Cmd+A to select visible apps, Ctrl/Cmd+Enter to extract the selection, and Space to toggle the focused app.
+- Show native scroll indicators and allow installation on devices without a touchscreen.
+- Avoid a sharing crash when document providers reject stream-type metadata queries.
+
+## 1.0.4
+
+- Explain that split APK exports are ZIP archives containing the base and required split APKs, not single files that Android can install by tapping.
+- Make split exports explicit in the app list and show split-install guidance after export.
+
 ## 1.0.3
 
 - Avoid recursive supporting-text baseline measurement in app rows while retaining native Material list styling.

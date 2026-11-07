@@ -19,7 +19,9 @@
     <string name="loading_apps">جارٍ تحميل التطبيقات المثبتة</string>
     <string name="no_apps">لم يتم العثور على تطبيقات</string>
     <string name="no_apps_detail">جرّب بحثًا آخر أو غيّر فلتر التطبيقات.</string>
-    <string name="split_apk">APK مجزّأ</string>
+    <string name="split_apk">ملفات APK مقسّمة · ZIP</string>
+    <string name="split_export_title">تصدير ملفات APK مقسّمة</string>
+    <string name="split_export_detail">هذا التطبيق مثبّت على شكل عدة ملفات APK. يحتوي ملف ZIP المحفوظ على ملف APK الأساسي وأجزائه، لذلك لا يمكن تثبيته بالنقر على ملف ZIP. لإعادة تثبيته، فك ضغط جميع الملفات واستخدم مثبّت APK مقسّماً يثبتها معاً.</string>
     <string name="export_complete">تم حفظ \u2068%1$s\u2069</string>
     <string name="export_failed">تعذّر استخراج \u2068%1$s\u2069</string>
     <string name="share">مشاركة</string>
@@ -120,4 +122,17 @@
     <string name="export_success_title">اكتمل التصدير</string>
     <string name="open_folder_action">فتح المجلد</string>
     <string name="change_folder_action">تغيير</string>
+    <string name="keyboard_shortcut_select_all">تحديد جميع التطبيقات الظاهرة</string>
+    <string name="keyboard_shortcut_toggle">تحديد التطبيق الذي عليه التركيز أو إلغاء تحديده</string>
+    <string name="keyboard_shortcut_menu">فتح إجراءات التطبيق</string>
+    <string name="new_window">نافذة جديدة</string>
+    <plurals name="exported_files">
+        <item quantity="zero">%d ملف مصدّر</item>
+        <item quantity="one">%d ملف مصدّر</item>
+        <item quantity="two">%d ملفان مصدّران</item>
+        <item quantity="few">%d ملفات مصدّرة</item>
+        <item quantity="many">%d ملفًا مصدّرًا</item>
+        <item quantity="other">%d ملف مصدّر</item>
+    </plurals>
+    <string name="xr_export_workspace">مساحة التصدير</string>
 </resources>

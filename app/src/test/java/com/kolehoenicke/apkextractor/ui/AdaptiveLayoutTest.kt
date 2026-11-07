@@ -9,6 +9,13 @@ import org.junit.Test
 
 class AdaptiveLayoutTest {
     @Test
+    fun `export pane appears only in wide windows with usable height`() {
+        assertFalse(shouldShowExportPane(WindowSizeClass(minWidthDp = 1199, minHeightDp = 800)))
+        assertFalse(shouldShowExportPane(WindowSizeClass(minWidthDp = 1200, minHeightDp = 479)))
+        assertTrue(shouldShowExportPane(WindowSizeClass(minWidthDp = 1200, minHeightDp = 480)))
+    }
+
+    @Test
     fun `short landscape windows use full screen search to clear keyboard`() {
         assertFalse(shouldUseDockedSearch(WindowSizeClass(minWidthDp = 840, minHeightDp = 479)))
         assertTrue(shouldUseDockedSearch(WindowSizeClass(minWidthDp = 840, minHeightDp = 480)))

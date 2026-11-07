@@ -81,9 +81,20 @@ class ExportImprovementsTest {
         composeRule.setContent { ApkExtractorTheme { ExportResultDialog(result, false, {}, {}, {}, {}) } }
         composeRule.onNodeWithText("Export complete").assertIsDisplayed()
         composeRule.onNodeWithText("日本語").assertIsDisplayed()
-        composeRule.onNodeWithText("日本語-1.apk").assertDoesNotExist()
+        // File names accompany app names so desktop users can identify each drag source.
+        composeRule.onNodeWithText("日本語-1.apk").assertIsDisplayed()
         composeRule.onNodeWithText("1 saved · 0 failed").assertDoesNotExist()
         screenshot("export-success.png")
+    }
+
+    @Test fun splitExportExplainsThatTheZipNeedsASplitInstaller() {
+        val result = UiEvent.ExportFinished(
+            listOf(ExportedFile(Uri.parse("content://test/file"), "Example-1-split-apks.zip", true, "Example")),
+            1, emptyList(), Uri.parse("content://test/tree/root"),
+        )
+        composeRule.setContent { ApkExtractorTheme { ExportResultDialog(result, false, {}, {}, {}, {}) } }
+        composeRule.onNodeWithText("Split APK export").assertIsDisplayed()
+        composeRule.onNodeWithText("cannot be installed by tapping the ZIP", substring = true).assertIsDisplayed()
     }
 
     @Test fun folderDialogGroupsWorkingActions() {

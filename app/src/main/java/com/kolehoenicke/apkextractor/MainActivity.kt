@@ -17,6 +17,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.kolehoenicke.apkextractor.ui.ApkExtractorApp
 import com.kolehoenicke.apkextractor.ui.theme.ApkExtractorTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,6 +30,7 @@ class MainActivity : ComponentActivity() {
     private val focusSearchRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     private var packageReceiverRegistered = false
     private var hasStartedOnce = false
+    private var canOpenNewWindow by mutableStateOf(false)
     private val packageChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == Intent.ACTION_PACKAGE_REMOVED &&
@@ -40,6 +44,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        updateWindowCapabilities()
         if (Build.VERSION.SDK_INT >= 35) {
             // Android 15+ enforces edge-to-edge for our target SDK. Avoid the bar-color
             // setters in Activity's compatibility helper on these versions.
@@ -62,12 +67,19 @@ class MainActivity : ComponentActivity() {
                     focusSearchRequests = focusSearchRequests,
                     onSuccessfulExtractionSession =
                         inAppReviewCoordinator::onSuccessfulExtractionSession,
+                    onNewWindow = if (canOpenNewWindow) ::openNewWindow else null,
                 )
             }
         }
     }
 
     override fun onKeyShortcut(keyCode: Int, event: KeyEvent): Boolean {
+        if (canOpenNewWindow && keyCode == KeyEvent.KEYCODE_N && event.isShiftPressed &&
+            (event.isCtrlPressed || event.isMetaPressed) && event.repeatCount == 0
+        ) {
+            openNewWindow()
+            return true
+        }
         if (keyCode == KeyEvent.KEYCODE_F &&
             (event.isCtrlPressed || event.isMetaPressed) &&
             focusSearchRequests.tryEmit(Unit)
@@ -76,6 +88,17 @@ class MainActivity : ComponentActivity() {
         }
         return super.onKeyShortcut(keyCode, event)
     }
+
+    override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean, newConfig: Configuration) {
+        super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig)
+        updateWindowCapabilities()
+    }
+
+    private fun updateWindowCapabilities() {
+        canOpenNewWindow = Build.VERSION.SDK_INT >= 35 && isInMultiWindowMode
+    }
+
+    private fun openNewWindow() = startActivity(createNewWindowIntent(this))
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ESCAPE && event.repeatCount == 0) {
@@ -105,7 +128,30 @@ class MainActivity : ComponentActivity() {
                         KeyEvent.KEYCODE_ESCAPE,
                         0,
                     ),
-                ),
+                    KeyboardShortcutInfo(
+                        getString(R.string.keyboard_shortcut_select_all),
+                        KeyEvent.KEYCODE_A,
+                        KeyEvent.META_CTRL_ON,
+                    ),
+                    KeyboardShortcutInfo(
+                        getString(R.string.extract_selected),
+                        KeyEvent.KEYCODE_ENTER,
+                        KeyEvent.META_CTRL_ON,
+                    ),
+                    KeyboardShortcutInfo(
+                        getString(R.string.keyboard_shortcut_toggle),
+                        KeyEvent.KEYCODE_SPACE,
+                        0,
+                    ),
+                    KeyboardShortcutInfo(
+                        getString(R.string.keyboard_shortcut_menu),
+                        KeyEvent.KEYCODE_F10,
+                        KeyEvent.META_SHIFT_ON,
+                    ),
+                ) + if (canOpenNewWindow) listOf(
+                    KeyboardShortcutInfo(getString(R.string.new_window), KeyEvent.KEYCODE_N,
+                        KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON),
+                ) else emptyList(),
             ),
         )
     }

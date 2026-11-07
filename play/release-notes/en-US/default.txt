@@ -1,7 +1,5 @@
-• Added Spanish, Portuguese, French, Arabic, and Persian, with Android app-language settings.
-• Improved list stability while scrolling.
-• Open your export folder on supported devices.
-• Review your last export, share files, and retry failed apps.
-• Improved batch exports, cancellation, and recovery.
-• Sort apps by recently updated.
-• Preserve international app names in exported filenames.
+• Native Android XR support with a curved app panel and separate export workspace.
+• Switch between Home Space and Full Space without losing your place.
+• Move and resize spatial panels.
+• Larger controls, readable text, and spatial dialogs on XR.
+• Improved export reports and rounded workspace corners.

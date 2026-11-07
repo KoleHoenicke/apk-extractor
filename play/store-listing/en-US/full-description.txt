@@ -1,6 +1,7 @@
 APK Extractor exports the APK files already installed on your device, including every installed split. It is completely free, ad-free, and open source, with no root or Internet permission.
 
 Tap an app to extract it, or long-press to select and export several apps at once. Conventional installations are saved as individual APK files. Apps installed from multiple APK splits are saved as ZIP archives containing the base APK, every installed split, and a manifest with filenames, split names, sizes, and SHA-256 hashes.
+Split APK ZIPs are archives, not individual installable APK files; to reinstall one, extract all of its APKs and use a split-APK installer that installs them together.
 
 Features
 • Browse user apps, system apps, or every installed app
@@ -13,7 +14,12 @@ Features
 • Choose any destination supported by Android’s system folder picker
 • Automatic light, dark, and dynamic color themes
 • Adaptive layouts for phones, tablets, foldables, and desktop windows
-• Physical keyboard shortcuts
+• Mouse hover, right-click menus, and visible keyboard focus
+• Ctrl/Cmd-click to select apps and Shift-click to select a range
+• Keyboard shortcuts for search, selection, extraction, and context menus
+• Export folder and last result alongside the app list in wide desktop windows
+• Multiple desktop windows with independent search and selection
+• Drag exported files or completed batches to other apps that accept file drops
 
 Free and straightforward
 • Completely free

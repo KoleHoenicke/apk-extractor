@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
+        <activity android:name="com.kolehoenicke.apkextractor.data.ExportTestGrantActivity"
+            android:exported="true" android:theme="@android:style/Theme.NoDisplay" />
         <provider android:name="com.kolehoenicke.apkextractor.data.ExportTestProvider"
             android:authorities="com.kolehoenicke.apkextractor.test.exports"
             android:permission="android.permission.MANAGE_DOCUMENTS" android:exported="true" android:grantUriPermissions="true" />

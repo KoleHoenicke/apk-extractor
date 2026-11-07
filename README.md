@@ -8,6 +8,7 @@
 A free, ad-free, open-source APK extraction utility for Android.
 
 APK Extractor lists the applications installed on the device and copies their original APK files to a folder selected through Android's system document picker. A conventional installation is exported as a single `.apk`. An app installed as a base APK plus configuration or feature splits is exported as a ZIP containing every installed APK and a `manifest.json` with filenames, split names, sizes, and SHA-256 hashes.
+Split APK ZIPs are archives, not individual installable APK files; to reinstall one, extract all of its APKs and use a split-APK installer that installs them together.
 
 Long-pressing an app enters contextual selection mode. Multiple selected apps are exported concurrently with independent per-app progress and one final result message. Exports run in a data-sync foreground service so they can finish while the screen is off or another app is open. Android 16.1 and newer can surface the native progress notification as a promoted Live Update and status-bar chip; older versions receive a standard ongoing progress notification. Finished notifications can share the exported files directly through Android's share sheet.
 
@@ -21,7 +22,12 @@ Exports use at most three concurrent copies and check cancellation while copying
 - Edge-to-edge, dynamic color, light and dark appearance
 - Adaptive phone, tablet, foldable, split-screen, and desktop-window layouts
 - Live list updates when apps are installed, updated, or removed
-- Physical-keyboard support with `Ctrl+F` for search and `Esc` for dismissal
+- Mouse hover, right-click menus, Ctrl/Cmd-click selection, and Shift-click range selection
+- Physical-keyboard support: search with `Ctrl+F`, select visible apps with `Ctrl+A`, extract the selection with `Ctrl+Enter`, toggle a focused app with Space, and open its menu with `Shift+F10`
+- Native scroll indicators and an export-folder/last-result pane in wide desktop windows
+- Multiple desktop windows with independent search, filters, and selection; export folder, sort order, progress, and recent results stay synchronized
+- Drag Material file rows showing the filename or batch count to apps that accept file drops, with matching native previews and read-only URI access
+- Open a new desktop window from the menu or with `Ctrl/Cmd+Shift+N`; one shared export session protects the export journal
 - No advertisements, subscriptions, accounts, analytics, or network permission
 - No root access or broad storage permission
 - Byte-for-byte extraction that preserves the installed APK signatures
@@ -29,7 +35,7 @@ Exports use at most three concurrent copies and check cancellation while copying
 
 ## Build
 
-The project uses Android SDK 37, Android Gradle Plugin 9.3.1, Gradle 9.7.1, Kotlin 2.4.10, Compose BOM 2026.08.00, and Material 3 1.5.0-alpha26.
+The project uses Android SDK 37, Android Gradle Plugin 9.4.0, Gradle 9.7.1, Kotlin 2.4.20, Compose BOM 2026.09.00, and Material 3 1.5.0-alpha28.
 
 Install JDK 17 and Android SDK 37, then run:
 
