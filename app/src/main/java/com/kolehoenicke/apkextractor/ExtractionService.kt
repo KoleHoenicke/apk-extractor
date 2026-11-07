@@ -54,9 +54,12 @@ class ExtractionService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        val interrupted = extractionJob != null
         extractionJob?.cancel()
         serviceScope.cancel()
-        if (ExtractionSession.state.value.isActive) {
+        // A finished instance may be destroyed after the next instance starts.
+        // It must not clear that instance's process-wide export session.
+        if (interrupted && ExtractionSession.state.value.isActive) {
             ExtractionSession.clear()
             notifications.cancel()
         }
@@ -99,7 +102,7 @@ class ExtractionService : Service() {
         outputTree: Uri,
         startId: Int,
     ) {
-        try {
+        val result = try {
             val initial = ExtractionSession.state.value.apps
             val placeholders = initial.map { InstalledApp(it.label, it.packageName, "", 0, null, false, emptyList()) }
             ExportResultStore(this).begin(placeholders, outputTree)
@@ -157,20 +160,14 @@ class ExtractionService : Service() {
                 outputFolder = outputTree,
             )
             resultStore.finish()
-            ExtractionSession.finish(event)
-            stopForeground(STOP_FOREGROUND_DETACH)
-            runCatching { notifications.notifyFinished(files, packageNames.size) }
-            stopSelf(startId)
+            event
         } catch (cancellation: CancellationException) {
             withContext(NonCancellable) {
                 val store = ExportResultStore(this@ExtractionService)
                 runCatching { store.recoverInterrupted(recoverActiveSession = true) }
-                store.read()?.let { ExtractionSession.finish(it) }
-                ExtractionSession.clear()
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                notifications.cancel()
-                stopSelf(startId)
+                finishExtraction(store.read(), startId, cancelled = true)
             }
+            throw cancellation
         } catch (failure: Exception) {
             if (failure is SecurityException) OutputFolderStore(this).clear()
             val store = ExportResultStore(this)
@@ -183,11 +180,30 @@ class ExtractionService : Service() {
                 },
                 outputFolder = outputTree,
             )
-            ExtractionSession.finish(result)
-            stopForeground(STOP_FOREGROUND_DETACH)
-            runCatching { notifications.notifyFinished(result.files, packageNames.size) }
-            stopSelf(startId)
+            result
         }
+        // Keep finalization outside the recovery catch blocks. Service destruction
+        // can cancel the worker while it returns from Main after publishing a result.
+        finishExtraction(result, startId)
+    }
+
+    private suspend fun finishExtraction(
+        result: UiEvent.ExportFinished?,
+        startId: Int,
+        cancelled: Boolean = false,
+    ) = withContext(NonCancellable + Dispatchers.Main.immediate) {
+        // onStartCommand also runs on Main. Retire the old job and foreground
+        // service before publishing idle state, so an immediate next export
+        // cannot be ignored as an already-running job or stopped by this one.
+        extractionJob = null
+        stopForeground(if (cancelled) STOP_FOREGROUND_REMOVE else STOP_FOREGROUND_DETACH)
+        if (cancelled) {
+            notifications.cancel()
+        } else if (result != null) {
+            runCatching { notifications.notifyFinished(result.files, result.requestedCount) }
+        }
+        stopSelf(startId)
+        if (result != null) ExtractionSession.finish(result) else ExtractionSession.clear()
     }
 
     @Synchronized

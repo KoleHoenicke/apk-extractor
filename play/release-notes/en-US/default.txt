@@ -1,5 +1,1 @@
-• Native Android XR support with a curved app panel and separate export workspace.
-• Switch between Home Space and Full Space without losing your place.
-• Move and resize spatial panels.
-• Larger controls, readable text, and spatial dialogs on XR.
-• Improved export reports and rounded workspace corners.
+Fixed a crash in very short windows and improved reliability when starting consecutive exports.

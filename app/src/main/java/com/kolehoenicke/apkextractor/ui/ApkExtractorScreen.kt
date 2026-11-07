@@ -23,7 +23,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -91,7 +90,6 @@ import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSearchBarState
-import androidx.compose.material3.nonInteractiveScrollbar
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -763,7 +761,7 @@ internal fun ExportSupportingPane(
 ) {
     val scrollState = rememberScrollState()
     val scrollbar = scrollState.scrollIndicatorState?.let {
-        Modifier.nonInteractiveScrollbar(it, Orientation.Vertical)
+        Modifier.appScrollbar(it)
     } ?: Modifier
     Column(modifier.verticalScroll(scrollState).then(scrollbar), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         OutlinedCard(Modifier.fillMaxWidth()) {
@@ -840,7 +838,7 @@ private fun AppList(
 
     val listState = rememberLazyListState()
     val scrollbar = listState.scrollIndicatorState?.let {
-        Modifier.nonInteractiveScrollbar(it, Orientation.Vertical,
+        Modifier.appScrollbar(it,
             mainAxisTrackInset = contentPadding.calculateTopPadding() + 8.dp)
     } ?: Modifier
     LazyColumn(
@@ -930,7 +928,7 @@ private fun SearchResults(
         .only(WindowInsetsSides.Bottom)
     val listState = rememberLazyListState()
     val scrollbar = listState.scrollIndicatorState?.let {
-        Modifier.nonInteractiveScrollbar(it, Orientation.Vertical)
+        Modifier.appScrollbar(it)
     } ?: Modifier
     LazyColumn(
         state = listState,

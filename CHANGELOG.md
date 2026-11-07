@@ -2,6 +2,11 @@
 
 Notable changes to APK Extractor are documented here.
 
+## 1.0.7
+
+- Fix crashes while drawing scrollbars in very short windows, including during resizing and keyboard transitions.
+- Finish foreground-service cleanup before accepting another export, avoiding a race during consecutive extractions.
+
 ## 1.0.6
 
 - Add native Android XR support with a curved app panel and a separate export workspace.

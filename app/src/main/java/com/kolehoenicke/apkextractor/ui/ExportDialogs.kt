@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.material3.nonInteractiveScrollbar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -54,7 +52,7 @@ internal fun ExportResultDialog(
         text = {
             val scrollState = rememberScrollState()
             val scrollbar = scrollState.scrollIndicatorState?.let {
-                Modifier.nonInteractiveScrollbar(it, Orientation.Vertical)
+                Modifier.appScrollbar(it)
             } ?: Modifier
             Column(Modifier.heightIn(max = 420.dp).verticalScroll(scrollState).then(scrollbar), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (result.failures.isNotEmpty()) ExportResultSummary(result)
@@ -91,7 +89,7 @@ internal fun ExportResultPane(
 ) {
     val scrollState = rememberLazyListState()
     val scrollbar = scrollState.scrollIndicatorState?.let {
-        Modifier.nonInteractiveScrollbar(it, Orientation.Vertical)
+        Modifier.appScrollbar(it)
     } ?: Modifier
     Column(modifier.fillMaxWidth()) {
         Text(stringResource(if (result.failures.isEmpty()) R.string.export_success_title else R.string.last_export),
