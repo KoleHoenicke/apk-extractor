@@ -14,6 +14,7 @@ import com.kolehoenicke.apkextractor.data.ExportedFile
 import com.kolehoenicke.apkextractor.data.InstalledApp
 import com.kolehoenicke.apkextractor.data.OutputFolderStore
 import com.kolehoenicke.apkextractor.data.filterApps
+import com.kolehoenicke.apkextractor.assistant.AssistantExportDraftStore
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -148,11 +149,22 @@ class MainViewModel @JvmOverloads constructor(
             runCatching { catalog.load() }
                 .onSuccess { apps ->
                     val installedPackages = apps.mapTo(mutableSetOf(), InstalledApp::packageName)
+                    val assistantSelection = savedStateHandle.get<ArrayList<String>>("assistant_selection")
+                        ?.toSet()?.intersect(installedPackages)
+                    savedStateHandle.remove<ArrayList<String>>("assistant_selection")
+                    val canReview = assistantSelection != null && !ExtractionSession.state.value.isActive
+                    if (canReview) {
+                        savedStateHandle["query"] = ""
+                        savedStateHandle["filter"] = AppFilter.All.name
+                    }
                     _state.update {
                         it.copy(
                             apps = apps,
                             loading = false,
-                            selectedPackages = it.selectedPackages.intersect(installedPackages),
+                            selectedPackages = if (canReview) assistantSelection
+                                else it.selectedPackages.intersect(installedPackages),
+                            query = if (canReview) "" else it.query,
+                            filter = if (canReview) AppFilter.All else it.filter,
                         )
                     }
                     persistSelection()
@@ -172,6 +184,16 @@ class MainViewModel @JvmOverloads constructor(
     }
 
     fun refreshSilently() = refresh(showLoading = false)
+
+    /** Only an unexpired, private draft can change the selection. File copying still requires the existing Extract action. */
+    internal fun reviewAssistantExport(token: String): Job = viewModelScope.launch {
+        val packages = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            AssistantExportDraftStore(getApplication()).consume(token)
+        } ?: return@launch
+        if (ExtractionSession.state.value.isActive) return@launch
+        savedStateHandle["assistant_selection"] = ArrayList(packages)
+        refreshSilently()
+    }
 
     fun setSort(sort: AppSort) {
         preferences.edit { putString("sort", sort.name) }

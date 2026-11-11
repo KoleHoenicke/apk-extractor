@@ -6,8 +6,10 @@
     <string name="more_options">گزینه‌های بیشتر</string>
     <string name="privacy_and_licenses">حریم خصوصی و مجوزها</string>
     <string name="done">تمام</string>
-    <string name="privacy_summary">\u2066APK Extractor\u2069 فهرست برنامه‌های نصب‌شده را فقط برای نمایش برنامه‌هایی می‌خواند که می‌توانید استخراج کنید. همهٔ پردازش‌ها روی همین دستگاه انجام می‌شود. برنامه مجوز دسترسی به اینترنت ندارد و داده‌ای جمع‌آوری نمی‌کند، نمی‌فروشد و به اشتراک نمی‌گذارد. مسیر پوشهٔ خروجی، ترتیب نمایش دلخواه و نتیجهٔ آخرین خروجی به‌صورت محلی ذخیره می‌شوند و فایل‌های خروجی فقط در همان پوشه نوشته می‌شوند.</string>
+    <string name="privacy_summary">\u2066APK Extractor\u2069 به اینترنت دسترسی ندارد و از ابزارهای تحلیل استفاده نمی‌کند. تنظیمات و نتیجهٔ آخرین خروجی روی همین دستگاه می‌مانند. دستیارهای مجاز \u2066Android\u2069 می‌توانند طبق خط‌مشی حریم خصوصی خود به اطلاعات برنامه‌ها و وضعیت خروجی دسترسی داشته باشند. استخراج و اشتراک‌گذاری فایل‌ها در اختیار شماست.</string>
     <string name="exit_selection">خروج از حالت انتخاب</string>
+    <string name="extract_action">استخراج</string>
+    <string name="close_search">بستن جستجو</string>
     <string name="extract_selected">استخراج برنامه‌های انتخاب‌شده</string>
     <string name="extract_app">استخراج \u2068%1$s\u2069</string>
     <string name="select_app">انتخاب \u2068%1$s\u2069</string>
@@ -41,10 +43,6 @@
     <string name="error_open_export">باز کردن فایل خروجی ممکن نشد.</string>
     <string name="error_start_extraction">شروع استخراج ممکن نشد.</string>
     <string name="error_unknown">خطای نامشخص</string>
-    <plurals name="app_count">
-        <item quantity="one">%d برنامه</item>
-        <item quantity="other">%d برنامه</item>
-    </plurals>
     <plurals name="selected_count">
         <item quantity="one">%d انتخاب‌شده</item>
         <item quantity="other">%d انتخاب‌شده</item>
@@ -72,9 +70,9 @@
     <string name="open_folder_unavailable">این دستگاه نمی‌تواند پوشه را مستقیم باز کند. آن را در برنامهٔ فایل‌ها باز کنید.</string>
     <string name="last_export">آخرین خروجی</string>
     <string name="view_result">مشاهده</string>
-    <plurals name="result_saved">
-        <item quantity="one">%d ذخیره‌شده</item>
-        <item quantity="other">%d ذخیره‌شده</item>
+    <plurals name="result_extracted">
+        <item quantity="one">%d استخراج‌شده</item>
+        <item quantity="other">%d استخراج‌شده</item>
     </plurals>
     <plurals name="result_failed">
         <item quantity="one">%d ناموفق</item>
@@ -99,4 +97,7 @@
         <item quantity="other">%d فایل صادرشده</item>
     </plurals>
     <string name="xr_export_workspace">فضای خروجی</string>
+    <string name="licenses">مجوزها</string>
+    <string name="license_notices">پدیدآورندگان و اطلاعیه‌ها</string>
+    <string name="back">بازگشت</string>
 </resources>

@@ -6,8 +6,10 @@
     <string name="more_options">Más opciones</string>
     <string name="privacy_and_licenses">Privacidad y licencias</string>
     <string name="done">Listo</string>
-    <string name="privacy_summary">APK Extractor consulta la lista de apps instaladas solo para mostrar las que puedes extraer. Todo el procesamiento se realiza en este dispositivo. La app no tiene permiso de acceso a Internet y no recopila, vende ni comparte datos. La ubicación de la carpeta de exportación, el orden elegido y el resultado de la última exportación se guardan localmente. Los archivos exportados se escriben solo en esa carpeta.</string>
+    <string name="privacy_summary">APK Extractor no tiene acceso a Internet ni utiliza analíticas. Tus ajustes y el último resultado de exportación se guardan en este dispositivo. Los asistentes de Android autorizados pueden acceder a la información de las apps y al estado de exportación según sus propias políticas de privacidad. Tú controlas la extracción y el uso compartido de archivos.</string>
     <string name="exit_selection">Salir de la selección</string>
+    <string name="extract_action">Extraer</string>
+    <string name="close_search">Cerrar búsqueda</string>
     <string name="extract_selected">Extraer apps seleccionadas</string>
     <string name="extract_app">Extraer %1$s</string>
     <string name="select_app">Seleccionar %1$s</string>
@@ -41,11 +43,6 @@
     <string name="error_open_export">No se pudo abrir el archivo de exportación.</string>
     <string name="error_start_extraction">No se pudo iniciar la extracción.</string>
     <string name="error_unknown">Error desconocido</string>
-    <plurals name="app_count">
-        <item quantity="one">%d app</item>
-        <item quantity="other">%d apps</item>
-        <item quantity="many">%d apps</item>
-    </plurals>
     <plurals name="selected_count">
         <item quantity="one">%d seleccionada</item>
         <item quantity="other">%d seleccionadas</item>
@@ -78,10 +75,10 @@
     <string name="open_folder_unavailable">Este dispositivo no puede abrir la carpeta directamente. Ábrela desde la app Archivos.</string>
     <string name="last_export">Última exportación</string>
     <string name="view_result">Ver</string>
-    <plurals name="result_saved">
-        <item quantity="one">%d guardada</item>
-        <item quantity="other">%d guardadas</item>
-        <item quantity="many">%d guardadas</item>
+    <plurals name="result_extracted">
+        <item quantity="one">%d extraída</item>
+        <item quantity="other">%d extraídas</item>
+        <item quantity="many">%d extraídas</item>
     </plurals>
     <plurals name="result_failed">
         <item quantity="one">%d fallida</item>
@@ -107,4 +104,7 @@
         <item quantity="other">%d archivos exportados</item>
     </plurals>
     <string name="xr_export_workspace">Espacio de exportación</string>
+    <string name="licenses">Licencias</string>
+    <string name="license_notices">Créditos y avisos</string>
+    <string name="back">Volver</string>
 </resources>

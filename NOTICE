@@ -5,6 +5,9 @@ The Android robot is reproduced or modified from work created and shared by
 Google and used according to terms described in the Creative Commons 3.0
 Attribution License.
 
+Android robot license:
+https://creativecommons.org/licenses/by/3.0/
+
 Android is a trademark of Google LLC.
 
 This product includes Material Symbols created by Google and licensed under
@@ -22,6 +25,9 @@ https://android.googlesource.com/platform/frameworks/libs/systemui/+/refs/heads/
 This product includes Google Sans Flex created by Google and licensed under
 the SIL Open Font License, Version 1.1. A copy of the license is included at
 licenses/OFL-1.1.txt.
+
+Google Sans Flex font copyright:
+Copyright 2015 Google LLC. All Rights Reserved.
 
 Google Sans Flex source:
 https://fonts.google.com/specimen/Google+Sans+Flex

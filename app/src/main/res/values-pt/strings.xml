@@ -6,8 +6,10 @@
     <string name="more_options">Mais opções</string>
     <string name="privacy_and_licenses">Privacidade e licenças</string>
     <string name="done">Concluído</string>
-    <string name="privacy_summary">APK Extractor consulta a lista de apps instalados apenas para mostrar quais podem ser extraídos. Todo o processamento acontece neste dispositivo. O app não tem permissão de acesso à Internet e não coleta, vende nem compartilha dados. O local da pasta de exportação, a preferência de ordenação e o resultado da última exportação são armazenados localmente. Os arquivos exportados são gravados apenas nessa pasta.</string>
+    <string name="privacy_summary">O APK Extractor não tem acesso à Internet nem usa análises. Suas configurações e o resultado da última exportação ficam neste dispositivo. Assistentes Android autorizados podem acessar informações dos apps e o status da exportação conforme suas próprias políticas de privacidade. Você controla a extração e o compartilhamento de arquivos.</string>
     <string name="exit_selection">Sair da seleção</string>
+    <string name="extract_action">Extrair</string>
+    <string name="close_search">Fechar pesquisa</string>
     <string name="extract_selected">Extrair apps selecionados</string>
     <string name="extract_app">Extrair %1$s</string>
     <string name="select_app">Selecionar %1$s</string>
@@ -41,11 +43,6 @@
     <string name="error_open_export">Não foi possível abrir o arquivo de exportação.</string>
     <string name="error_start_extraction">Não foi possível iniciar a extração.</string>
     <string name="error_unknown">Erro desconhecido</string>
-    <plurals name="app_count">
-        <item quantity="one">%d app</item>
-        <item quantity="other">%d apps</item>
-        <item quantity="many">%d apps</item>
-    </plurals>
     <plurals name="selected_count">
         <item quantity="one">%d selecionado</item>
         <item quantity="other">%d selecionados</item>
@@ -78,10 +75,10 @@
     <string name="open_folder_unavailable">Este dispositivo não pode abrir a pasta diretamente. Abra-a pelo app Arquivos.</string>
     <string name="last_export">Última exportação</string>
     <string name="view_result">Ver</string>
-    <plurals name="result_saved">
-        <item quantity="one">%d salvo</item>
-        <item quantity="other">%d salvos</item>
-        <item quantity="many">%d salvos</item>
+    <plurals name="result_extracted">
+        <item quantity="one">%d extraído</item>
+        <item quantity="other">%d extraídos</item>
+        <item quantity="many">%d extraídos</item>
     </plurals>
     <plurals name="result_failed">
         <item quantity="one">%d com falha</item>
@@ -107,4 +104,7 @@
         <item quantity="other">%d arquivos exportados</item>
     </plurals>
     <string name="xr_export_workspace">Espaço de exportação</string>
+    <string name="licenses">Licenças</string>
+    <string name="license_notices">Créditos e avisos</string>
+    <string name="back">Voltar</string>
 </resources>

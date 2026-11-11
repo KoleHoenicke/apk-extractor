@@ -1,6 +1,7 @@
 package com.kolehoenicke.apkextractor.ui
 
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.selection.selectableGroup
@@ -9,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.xr.compose.spatial.SpatialPopup
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
@@ -38,6 +40,11 @@ internal fun AppOverflowMenu(
 ) {
     var sorting by remember { mutableStateOf(false) }
     var sortRow by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    // Keep room for both native menus. Larger labels wrap instead of covering
+    // the parent menu when accessibility text is enabled on a compact window.
+    val menuWidth = if (LocalXrUi.current.isSpatial) Modifier else Modifier.widthIn(
+        max = ((LocalWindowInfo.current.containerDpSize.width - 32.dp) / 2).coerceAtLeast(0.dp),
+    )
     val hostView = LocalView.current
     val materialPosition = MenuDefaults.rememberDropdownMenuPopupPositionProvider(MenuAnchorPosition.End)
     val submenuPosition = remember(materialPosition, hostView) {
@@ -62,7 +69,7 @@ internal fun AppOverflowMenu(
     LaunchedEffect(expanded) { if (!expanded) sorting = false }
     val itemCount = 2 + (if (hasResult) 1 else 0) + (if (onNewWindow != null) 1 else 0)
     val rootMenu: @Composable () -> Unit = {
-        DropdownMenuGroup(MenuDefaults.groupShape(0, 1)) {
+        DropdownMenuGroup(MenuDefaults.groupShape(0, 1), menuWidth) {
             if (onNewWindow != null) DropdownMenuItem(
                 modifier = if (LocalXrUi.current.isXr) Modifier.heightIn(min = 56.dp) else Modifier,
                 text = { Text(stringResource(R.string.new_window)) },
@@ -93,7 +100,7 @@ internal fun AppOverflowMenu(
         }
     }
     val sortMenu: @Composable () -> Unit = {
-        DropdownMenuGroup(MenuDefaults.groupShape(0, 1), Modifier.selectableGroup()) {
+        DropdownMenuGroup(MenuDefaults.groupShape(0, 1), menuWidth.selectableGroup()) {
             AppSort.entries.forEachIndexed { index, option ->
                 SelectableDropdownMenuItem(
                     modifier = if (LocalXrUi.current.isXr) Modifier.heightIn(min = 56.dp) else Modifier,

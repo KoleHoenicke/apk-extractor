@@ -2,6 +2,21 @@
 
 Notable changes to APK Extractor are documented here.
 
+## 1.0.8
+
+- Load the installed-app list faster with a bulk package query and load icons as their rows appear.
+- Keep selection actions within reach in a floating toolbar showing the selected count and Extract action, with visible row checkboxes.
+- Refresh filters and toolbar spacing with native Material 3 Expressive components.
+- Keep filters full width when their labels fit, with native overflow for larger text and narrow windows.
+- Shorten the privacy dialog and make full credits and license texts available offline through a separate Licenses action.
+- Show export folder and result details in bottom sheets, with improved layouts for large text and short windows.
+- Simplify extraction results with one extracted count, individual file rows, and a standard Material action button group that stacks when space is limited.
+- Animate Done through the native bottom-sheet dismissal transition in result and folder sheets.
+- Improve search navigation, sorting menus, and scrollbar behavior as the app bar expands and collapses.
+- Add Russian, German, Korean, and Simplified Chinese translations with native app-language selection and language-specific count formats.
+- Add Android MCP/AppFunctions for authorized assistants to search installed-app metadata, prepare selections for review, and read export status. Gemini availability depends on Google's Connected Apps rollout and approval.
+- Update the XR libraries while retaining the existing spatial workspace and controls.
+
 ## 1.0.7
 
 - Fix crashes while drawing scrollbars in very short windows, including during resizing and keyboard transitions.

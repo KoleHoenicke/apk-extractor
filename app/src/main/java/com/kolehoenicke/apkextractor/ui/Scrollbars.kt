@@ -16,7 +16,7 @@ internal fun Modifier.appScrollbar(
 ): Modifier = nonInteractiveScrollbar(
     state = state,
     orientation = Orientation.Vertical,
-    // Material 3 alpha28 skips tracks shorter than the 24dp minimum thumb, but
+    // Material 3 1.5.0-rc01 skips tracks shorter than the 24dp minimum thumb, but
     // its default 0.9 maximum still creates an empty range on 24..26.67dp tracks.
     // A full-track maximum keeps that range valid, including while resizing.
     thumbMaxLengthFraction = 1f,

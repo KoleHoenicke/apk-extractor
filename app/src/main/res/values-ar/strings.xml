@@ -6,8 +6,10 @@
     <string name="more_options">المزيد من الخيارات</string>
     <string name="privacy_and_licenses">الخصوصية والتراخيص</string>
     <string name="done">تم</string>
-    <string name="privacy_summary">يقرأ \u2066APK Extractor\u2069 قائمة التطبيقات المثبتة فقط لعرض التطبيقات التي يمكنك استخراجها. تتم جميع العمليات على هذا الجهاز. لا يملك التطبيق إذن الوصول إلى الإنترنت ولا يجمع البيانات أو يبيعها أو يشاركها. يُحفظ موقع مجلد التصدير وترتيب العرض المفضّل ونتيجة آخر تصدير محليًا، ولا تُكتب الملفات المصدّرة إلا في ذلك المجلد.</string>
+    <string name="privacy_summary">لا يتصل \u2066APK Extractor\u2069 بالإنترنت ولا يستخدم أدوات تحليل. تبقى إعداداتك ونتيجة آخر تصدير على هذا الجهاز. يمكن لمساعدي \u2066Android\u2069 المصرّح لهم الوصول إلى معلومات التطبيقات وحالة التصدير وفق سياسات الخصوصية الخاصة بهم. أنت تتحكم في الاستخراج ومشاركة الملفات.</string>
     <string name="exit_selection">إنهاء التحديد</string>
+    <string name="extract_action">استخراج</string>
+    <string name="close_search">إغلاق البحث</string>
     <string name="extract_selected">استخراج التطبيقات المحددة</string>
     <string name="extract_app">استخراج \u2068%1$s\u2069</string>
     <string name="select_app">تحديد \u2068%1$s\u2069</string>
@@ -41,14 +43,6 @@
     <string name="error_open_export">تعذّر فتح ملف التصدير.</string>
     <string name="error_start_extraction">تعذّر بدء الاستخراج.</string>
     <string name="error_unknown">خطأ غير معروف</string>
-    <plurals name="app_count">
-        <item quantity="zero">عدد التطبيقات: %d</item>
-        <item quantity="one">عدد التطبيقات: %d</item>
-        <item quantity="two">عدد التطبيقات: %d</item>
-        <item quantity="few">عدد التطبيقات: %d</item>
-        <item quantity="many">عدد التطبيقات: %d</item>
-        <item quantity="other">عدد التطبيقات: %d</item>
-    </plurals>
     <plurals name="selected_count">
         <item quantity="zero">المحدد: %d</item>
         <item quantity="one">المحدد: %d</item>
@@ -96,13 +90,13 @@
     <string name="open_folder_unavailable">لا يمكن لهذا الجهاز فتح المجلد مباشرةً. افتحه من تطبيق الملفات.</string>
     <string name="last_export">آخر تصدير</string>
     <string name="view_result">عرض</string>
-    <plurals name="result_saved">
-        <item quantity="zero">تم الحفظ: %d</item>
-        <item quantity="one">تم الحفظ: %d</item>
-        <item quantity="two">تم الحفظ: %d</item>
-        <item quantity="few">تم الحفظ: %d</item>
-        <item quantity="many">تم الحفظ: %d</item>
-        <item quantity="other">تم الحفظ: %d</item>
+    <plurals name="result_extracted">
+        <item quantity="zero">تم الاستخراج: %d</item>
+        <item quantity="one">تم الاستخراج: %d</item>
+        <item quantity="two">تم الاستخراج: %d</item>
+        <item quantity="few">تم الاستخراج: %d</item>
+        <item quantity="many">تم الاستخراج: %d</item>
+        <item quantity="other">تم الاستخراج: %d</item>
     </plurals>
     <plurals name="result_failed">
         <item quantity="zero">فشل: %d</item>
@@ -135,4 +129,7 @@
         <item quantity="other">%d ملف مصدّر</item>
     </plurals>
     <string name="xr_export_workspace">مساحة التصدير</string>
+    <string name="licenses">التراخيص</string>
+    <string name="license_notices">الاعتمادات والإشعارات</string>
+    <string name="back">رجوع</string>
 </resources>

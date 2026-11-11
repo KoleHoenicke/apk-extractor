@@ -97,8 +97,14 @@ class ApkExtractorScreenTest {
         composeRule.onAllNodesWithContentDescription("More options")[1].performClick()
         composeRule.onNodeWithText("Privacy & licenses").performClick()
 
-        composeRule.onNodeWithText("APK Extractor reads the installed-app inventory", substring = true)
+        composeRule.onNodeWithText("APK Extractor has no internet access", substring = true)
             .assertIsDisplayed()
+        composeRule.onNodeWithText("Licenses").performClick()
+        composeRule.onNodeWithText("Credits & notices").performClick()
+        composeRule.waitUntil(10_000) {
+            composeRule.onAllNodes(hasText("The Android robot is reproduced or modified", substring = true))
+                .fetchSemanticsNodes().isNotEmpty()
+        }
         composeRule.onNodeWithText("The Android robot is reproduced or modified", substring = true)
             .assertIsDisplayed()
     }

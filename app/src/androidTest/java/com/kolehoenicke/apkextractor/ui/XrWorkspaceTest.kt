@@ -176,7 +176,7 @@ class XrWorkspaceTest {
                 }
             }
         }
-        compose.onNodeWithText("100 saved · 1 failed").assertIsDisplayed()
+        compose.onNodeWithText("100 extracted · 1 failed").assertIsDisplayed()
         compose.onNodeWithText("Folder unavailable").assertIsDisplayed()
         val initialDone = compose.onNodeWithText("Done").assertHeightIsAtLeast(56.dp)
             .fetchSemanticsNode().boundsInRoot
@@ -219,7 +219,7 @@ class XrWorkspaceTest {
                 }
             }
         }
-        compose.onNodeWithText("2 saved").assertIsDisplayed()
+        compose.onNodeWithText("2 extracted").assertIsDisplayed()
         compose.onNodeWithText("Example2.apk").assertIsDisplayed()
         val pane = compose.onNodeWithTag("report-pane").fetchSemanticsNode().boundsInRoot
         val done = compose.onNodeWithText("Done").fetchSemanticsNode().boundsInRoot

@@ -12,7 +12,7 @@ base = {e.attrib['name']: e for e in ET.parse(res / 'values/strings.xml').getroo
 def placeholders(text):
     return Counter(re.findall(r'%(?:\d+\$)?[sd]', text or ''))
 
-for lang in ('es', 'pt', 'fr', 'ar', 'fa'):
+for lang in ('es', 'pt', 'fr', 'ar', 'fa', 'ru', 'de', 'ko', 'b+zh+Hans'):
     translated = {e.attrib['name']: e for e in ET.parse(res / f'values-{lang}/strings.xml').getroot()}
     assert translated.keys() == base.keys(), (lang, base.keys() ^ translated.keys())
     for key, original in base.items():
@@ -22,6 +22,11 @@ for lang in ('es', 'pt', 'fr', 'ar', 'fa'):
         for item in ([target] if target.tag == 'string' else target):
             assert item.text and placeholders(item.text) == expected, (lang, key, item.text)
         if target.tag == 'plurals':
-            required = {'zero', 'one', 'two', 'few', 'many', 'other'} if lang == 'ar' else {'one', 'other'}
+            required = {
+                'ar': {'zero', 'one', 'two', 'few', 'many', 'other'},
+                'ru': {'one', 'few', 'many', 'other'},
+                'ko': {'other'},
+                'b+zh+Hans': {'other'},
+            }.get(lang, {'one', 'other'})
             assert required <= {item.get('quantity') for item in target}, (lang, key)
     print(f'{lang}: {len(translated)} resources; coverage, placeholders, and plural categories OK')

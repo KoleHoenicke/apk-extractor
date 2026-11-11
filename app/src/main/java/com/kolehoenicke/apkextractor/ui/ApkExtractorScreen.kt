@@ -6,12 +6,14 @@
 package com.kolehoenicke.apkextractor.ui
 
 import android.Manifest
+import android.content.res.Configuration
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -23,21 +25,26 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,6 +55,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -59,6 +67,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.DropdownMenu
@@ -67,6 +76,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExpandedDockedSearchBarWithGap
 import androidx.compose.material3.ExpandedFullScreenSearchBar
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearWavyProgressIndicator
@@ -87,6 +98,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSearchBarState
@@ -96,6 +109,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -116,17 +131,26 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -140,6 +164,8 @@ import com.kolehoenicke.apkextractor.MainViewModel
 import com.kolehoenicke.apkextractor.R
 import com.kolehoenicke.apkextractor.UiEvent
 import com.kolehoenicke.apkextractor.createShareChooserIntent
+import com.kolehoenicke.apkextractor.data.AppIconKey
+import com.kolehoenicke.apkextractor.data.AppIconLoader
 import com.kolehoenicke.apkextractor.data.AppSort
 import com.kolehoenicke.apkextractor.data.AppFilter
 import com.kolehoenicke.apkextractor.data.ExportedFile
@@ -165,6 +191,7 @@ fun ApkExtractorApp(
     onNewWindow: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    ReportDrawnWhen { !state.loading }
     val context = LocalContext.current
     val resources = LocalResources.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -406,6 +433,12 @@ fun ApkExtractorScreen(
         }
     }
     val textFieldState = rememberTextFieldState(state.query)
+    LaunchedEffect(state.query) {
+        // Assistant preparation can clear a query while this screen stays alive.
+        if (textFieldState.text.toString() != state.query) {
+            textFieldState.setTextAndPlaceCursorAtEnd(state.query)
+        }
+    }
     val searchFocusRequester = remember { FocusRequester() }
     var searchFieldFocused by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -414,6 +447,7 @@ fun ApkExtractorScreen(
     val searchWidth = adaptiveSearchWidth(LocalWindowInfo.current.containerDpSize.width)
     val showExportPane = !LocalXrUi.current.isSpatial &&
         shouldShowExportPane(currentWindowAdaptiveInfoV2().windowSizeClass)
+    val visibleApps = remember(state.apps, state.filter, state.query, state.sort) { state.visibleApps }
     val selectionMode = state.selectedPackages.isNotEmpty()
     val selectedApps = remember(state.apps, state.selectedPackages) {
         state.apps.filter { it.packageName in state.selectedPackages }
@@ -427,7 +461,7 @@ fun ApkExtractorScreen(
     }
     val selectRange: (String) -> Unit = { packageName ->
         if (!state.isExporting) {
-            val visible = state.visibleApps.map(InstalledApp::packageName)
+            val visible = visibleApps.map(InstalledApp::packageName)
             onSelectionChange(state.selectedPackages + selectionRange(visible, selectionAnchor, packageName))
             if (selectionAnchor !in visible) selectionAnchor = packageName
         }
@@ -442,7 +476,7 @@ fun ApkExtractorScreen(
         } else if (event.key == Key.A || event.key == Key.Enter) {
             if (event.type == KeyEventType.KeyDown && event.nativeKeyEvent.repeatCount == 0 && !state.isExporting) {
                 if (event.key == Key.A) {
-                    val visible = state.visibleApps.map(InstalledApp::packageName)
+                    val visible = visibleApps.map(InstalledApp::packageName)
                     selectionAnchor = visible.firstOrNull()
                     onSelectionChange(state.selectedPackages + visible)
                 } else if (selectedApps.isNotEmpty()) {
@@ -481,10 +515,16 @@ fun ApkExtractorScreen(
                 .focusRequester(searchFocusRequester),
             placeholder = { Text(stringResource(R.string.search_apps)) },
             leadingIcon = {
-                Icon(
-                    painter = painterResource(R.drawable.ic_search),
-                    contentDescription = null,
-                )
+                if (searchBarState.targetValue == androidx.compose.material3.SearchBarValue.Expanded) {
+                    AppActionButton(
+                        description = stringResource(R.string.close_search),
+                        onClick = { scope.launch { searchBarState.animateToCollapsed() } },
+                    ) {
+                        Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = null)
+                    }
+                } else {
+                    Icon(painterResource(R.drawable.ic_search), contentDescription = null)
+                }
             },
             trailingIcon = if (textFieldState.text.isNotEmpty()) {
                 {
@@ -517,36 +557,8 @@ fun ApkExtractorScreen(
             XrAppBar {
                 if (selectionMode) {
                     TopAppBar(
-                        title = {
-                            Text(
-                                pluralStringResource(
-                                    R.plurals.selected_count,
-                                    selectedApps.size,
-                                    selectedApps.size,
-                                ),
-                            )
-                        },
-                        navigationIcon = {
-                            AppActionButton(description = stringResource(R.string.exit_selection), onClick = onClearSelection) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_close),
-                                    contentDescription = stringResource(R.string.exit_selection),
-                                )
-                            }
-                        },
-                        actions = {
-                            XrSpaceModeButton()
-                            AppActionButton(
-                                description = stringResource(R.string.extract_selected),
-                                onClick = { onExtractSelected(selectedApps) },
-                                enabled = selectedApps.isNotEmpty() && !state.isExporting,
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_download),
-                                    contentDescription = stringResource(R.string.extract_selected),
-                                )
-                            }
-                        },
+                        title = { Text(stringResource(R.string.app_name)) },
+                        actions = { XrSpaceModeButton() },
                         scrollBehavior = if (LocalXrUi.current.isSpatial) null else topBarScrollBehavior,
                     )
                 } else {
@@ -594,6 +606,27 @@ fun ApkExtractorScreen(
                 }
             }
         },
+        bottomBar = {
+            if (selectionMode) {
+                // Scaffold measures the toolbar so large text reserves its actual height.
+                // The toolbar belongs to the catalog pane and never follows app-bar scrolling.
+                Box(Modifier.fillMaxWidth().padding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal).asPaddingValues(),
+                ), contentAlignment = Alignment.Center) {
+                    Row(Modifier.widthIn(max = if (showExportPane) 1176.dp else AdaptiveContentMaxWidth).fillMaxWidth()) {
+                        Box(Modifier.weight(1f).padding(16.dp), contentAlignment = Alignment.Center) {
+                            SelectionToolbar(
+                                count = selectedApps.size,
+                                enabled = !state.isExporting,
+                                onClear = onClearSelection,
+                                onExtract = { onExtractSelected(selectedApps) },
+                            )
+                        }
+                        if (showExportPane) Spacer(Modifier.width(336.dp))
+                    }
+                }
+            }
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         Box(
@@ -603,6 +636,7 @@ fun ApkExtractorScreen(
             Row(Modifier.widthIn(max = if (showExportPane) 1176.dp else AdaptiveContentMaxWidth).fillMaxSize()) {
                 AppList(
                     state = state,
+                    visibleApps = visibleApps,
                     contentPadding = innerPadding,
                     header = {
                         Box(
@@ -619,17 +653,6 @@ fun ApkExtractorScreen(
                         AppFilterButtons(
                             selected = state.filter,
                             onSelected = onFilterChange,
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = pluralStringResource(
-                                R.plurals.app_count,
-                                state.visibleApps.size,
-                                state.visibleApps.size,
-                            ),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 4.dp),
                         )
                     },
                     onRefresh = onRefresh,
@@ -659,7 +682,7 @@ fun ApkExtractorScreen(
 
     val searchResults: @Composable ColumnScope.() -> Unit = {
         SearchResults(
-            apps = state.visibleApps,
+            apps = visibleApps,
             exportingPackages = state.exportingPackages,
             exportProgressByPackage = state.exportProgressByPackage,
             selectedPackages = state.selectedPackages,
@@ -712,35 +735,45 @@ fun ApkExtractorScreen(
 }
 
 @Composable
-private fun PrivacyAndLicensesDialog(onDismissRequest: () -> Unit) {
-    XrAlertDialog(
-        onDismissRequest = onDismissRequest,
-        title = { Text(stringResource(R.string.privacy_and_licenses)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(
-                    text = stringResource(R.string.privacy_summary),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    text = stringResource(R.string.android_robot_attribution),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = stringResource(R.string.open_source_attribution),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+internal fun SelectionToolbar(
+    count: Int,
+    enabled: Boolean,
+    onClear: () -> Unit,
+    onExtract: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val extractDescription = stringResource(R.string.extract_selected)
+    HorizontalFloatingToolbar(
+        expanded = true,
+        modifier = modifier,
+        colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(),
+    ) {
+        // Match the visual control sizes, not just their invisible touch targets.
+        // This keeps the button's rounded end concentric with the toolbar container.
+        Row(Modifier.height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
+            AppActionButton(
+                description = stringResource(R.string.exit_selection),
+                onClick = onClear,
+                modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp),
+            ) {
+                Icon(painterResource(R.drawable.ic_close), contentDescription = null)
             }
-        },
-        confirmButton = {
-            TextButton(modifier = Modifier.xrActionSize(), onClick = onDismissRequest) {
-                Text(stringResource(R.string.done))
-            }
-        },
-    )
+            Text(
+                pluralStringResource(R.plurals.selected_count, count, count),
+                modifier = Modifier.weight(1f, fill = false).padding(horizontal = 8.dp)
+                    .semantics { liveRegion = LiveRegionMode.Polite },
+                style = MaterialTheme.typography.labelLarge,
+            )
+            Button(
+                onClick = onExtract,
+                enabled = enabled && count > 0,
+                modifier = Modifier.fillMaxHeight().heightIn(min = ButtonDefaults.MediumContainerHeight)
+                    .xrActionSize().semantics { contentDescription = extractDescription },
+            ) { Text(stringResource(R.string.extract_action)) }
+        }
+    }
 }
+
 
 internal fun shouldUseDockedSearch(windowSizeClass: WindowSizeClass): Boolean =
     windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND) &&
@@ -785,7 +818,7 @@ internal fun ExportSupportingPane(
             OutlinedCard(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(stringResource(R.string.last_export), style = MaterialTheme.typography.titleMedium)
-                    Text(pluralStringResource(R.plurals.result_saved, result.files.size, result.files.size))
+                    Text(pluralStringResource(R.plurals.result_extracted, result.files.size, result.files.size))
                     if (result.failures.isNotEmpty()) {
                         Text(pluralStringResource(R.plurals.result_failed, result.failures.size, result.failures.size))
                     }
@@ -808,6 +841,7 @@ internal fun adaptiveSearchWidth(windowWidth: Dp) =
 @Composable
 private fun AppList(
     state: AppUiState,
+    visibleApps: List<InstalledApp>,
     contentPadding: PaddingValues,
     header: @Composable () -> Unit,
     onRefresh: () -> Unit,
@@ -837,14 +871,20 @@ private fun AppList(
     }
 
     val listState = rememberLazyListState()
+    val layoutDirection = LocalLayoutDirection.current
     val scrollbar = listState.scrollIndicatorState?.let {
-        Modifier.appScrollbar(it,
-            mainAxisTrackInset = contentPadding.calculateTopPadding() + 8.dp)
+        Modifier.appScrollbar(it)
     } ?: Modifier
     LazyColumn(
         state = listState,
-        modifier = modifier.fillMaxSize().then(scrollbar),
-        contentPadding = contentPadding,
+        // Keep the track parameters stable. Changing its inset on every app-bar
+        // frame recreates Material's scrollbar node and resets its fading state.
+        modifier = modifier.fillMaxSize().padding(top = contentPadding.calculateTopPadding()).then(scrollbar),
+        contentPadding = PaddingValues(
+            start = contentPadding.calculateStartPadding(layoutDirection),
+            end = contentPadding.calculateEndPadding(layoutDirection),
+            bottom = contentPadding.calculateBottomPadding(),
+        ),
     ) {
         item(key = "header") {
             AppListHeader(header)
@@ -854,9 +894,9 @@ private fun AppList(
             state.loadError != null -> item(key = "error") {
                 ErrorState(message = state.loadError, onRefresh = onRefresh)
             }
-            state.visibleApps.isEmpty() -> item(key = "empty") { EmptyState() }
+            visibleApps.isEmpty() -> item(key = "empty") { EmptyState() }
             else -> itemsIndexed(
-                items = state.visibleApps,
+                items = visibleApps,
                 key = { _, app -> app.packageName },
                 contentType = { _, _ -> "app" },
             ) { index, app ->
@@ -865,7 +905,7 @@ private fun AppList(
                 AppRow(
                     app = app,
                     index = index,
-                    count = state.visibleApps.size,
+                    count = visibleApps.size,
                     selected = selected,
                     selectionMode = selectionMode,
                     exporting = app.packageName in state.exportingPackages,
@@ -983,55 +1023,77 @@ private fun SearchResults(
 }
 
 @Composable
-private fun AppFilterButtons(
+internal fun AppFilterButtons(
     selected: AppFilter,
     onSelected: (AppFilter) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val labels = mapOf(
         AppFilter.User to stringResource(R.string.user_apps),
         AppFilter.System to stringResource(R.string.system_apps),
         AppFilter.All to stringResource(R.string.all_apps),
     )
-    val isXr = LocalXrUi.current.isXr
-    ButtonGroup(
-        overflowIndicator = { menuState ->
-            ButtonGroupDefaults.OverflowIndicator(menuState = menuState)
-        },
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        val groupScope = this
-        AppFilter.entries.forEach { filter ->
-            if (isXr) {
-                // The built-in DSL uses 48dp targets. Keep Material's toggle and group
-                // press animation, with an explicit 56dp target for hand-ray input.
+    val density = LocalDensity.current
+    val direction = LocalLayoutDirection.current
+    val measurer = rememberTextMeasurer()
+    val buttonSize = ToggleButtonDefaults.size
+    val textStyle = ButtonDefaults.textStyleFor(buttonSize.height)
+    val padding = ToggleButtonDefaults.contentPaddingFor(buttonSize, hasStartIcon = false)
+    val horizontalPadding = with(density) {
+        padding.calculateStartPadding(direction).roundToPx() + padding.calculateEndPadding(direction).roundToPx()
+    }
+    val minimumTarget = with(density) {
+        (if (LocalXrUi.current.isXr) 56.dp else LocalMinimumInteractiveComponentSize.current).roundToPx()
+    }
+    val labelWidths = AppFilter.entries.map { filter ->
+        (measurer.measure(labels.getValue(filter), style = textStyle, softWrap = false, maxLines = 1).size.width +
+            horizontalPadding + 1).coerceAtLeast(minimumTarget)
+    }
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        val gap = with(density) { ButtonGroupDefaults.ConnectedSpaceBetween.roundToPx() }
+        val available = constraints.maxWidth - gap * (AppFilter.entries.size - 1)
+        val equalWidth = available / AppFilter.entries.size
+        val equalButtons = labelWidths.all { it <= equalWidth }
+        val allButtonsFit = labelWidths.sum() <= available
+        // Fill the row when labels fit. Keep the native group's minimum width loose so
+        // its overflow menu can measure safely when large text needs more room.
+        ButtonGroup(
+            overflowIndicator = { menuState ->
+                ButtonGroupDefaults.OverflowIndicator(menuState = menuState, modifier = Modifier.xrActionSize())
+            },
+            modifier = Modifier.selectableGroup(),
+            expandedRatio = 0f,
+            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+        ) {
+            val groupScope = this
+            AppFilter.entries.forEach { filter ->
                 customItem(
                     buttonGroupContent = {
-                        val interactions = remember { MutableInteractionSource() }
                         ToggleButton(
                             checked = selected == filter,
-                            onCheckedChange = { checked -> if (checked) onSelected(filter) },
-                            modifier = with(groupScope) {
-                                Modifier.heightIn(min = 56.dp).weight(1f).animateWidth(interactions)
+                            buttonSize = buttonSize,
+                            onCheckedChange = { onSelected(filter) },
+                            shapes = when (filter) {
+                                AppFilter.User -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                AppFilter.System -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                AppFilter.All -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                             },
-                            interactionSource = interactions,
+                            modifier = with(groupScope) {
+                                Modifier.xrActionSize()
+                                    .then(if (allButtonsFit) Modifier.weight(if (equalButtons) 1f else labelWidths[filter.ordinal].toFloat()) else Modifier)
+                                    .semantics { role = Role.RadioButton }
+                            },
                         ) { Text(labels.getValue(filter), maxLines = 1) }
                     },
                     menuContent = { menuState ->
                         SelectableDropdownMenuItem(
                             selected = selected == filter,
                             shapes = MenuDefaults.itemShape(filter.ordinal, AppFilter.entries.size),
-                            modifier = Modifier.heightIn(min = 56.dp),
+                            modifier = Modifier.xrActionSize(),
                             onClick = { onSelected(filter); menuState.dismiss() },
                             text = { Text(labels.getValue(filter)) },
                         )
                     },
-                )
-            } else {
-                toggleableItem(
-                    checked = selected == filter,
-                    label = labels.getValue(filter),
-                    onCheckedChange = { checked -> if (checked) onSelected(filter) },
-                    weight = 1f,
                 )
             }
         }
@@ -1055,6 +1117,17 @@ internal fun AppRow(
     onContextExtract: () -> Unit = onClick,
     onRangeSelection: () -> Unit = onLongClick,
 ) {
+    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val iconKey = remember(app.packageName, app.versionCode, app.lastUpdateTime, app.apkFiles, configuration) {
+        AppIconKey(app.packageName, app.apkFiles.firstOrNull()?.path, app.versionCode,
+            app.lastUpdateTime, Configuration(configuration))
+    }
+    val rowIcon by key(app.icon, iconKey) {
+        produceState(app.icon ?: AppIconLoader.cached(iconKey)) {
+            if (value == null) value = AppIconLoader.load(context, iconKey)
+        }
+    }
     val selectDescription = stringResource(
         if (selected) R.string.deselect_app else R.string.select_app, app.label,
     )
@@ -1102,15 +1175,17 @@ internal fun AppRow(
                 supportingContentColor = supportingContentColor,
                 disabledContainerColor = unselectedContainerColor,
             ),
-            trailingContent = if (LocalXrUi.current.isXr) {
+            trailingContent = if (selectionMode || LocalXrUi.current.isXr) {
                 {
                     androidx.compose.material3.Checkbox(
                         checked = selected,
-                        onCheckedChange = { if (selectionMode) onClick() else onLongClick() },
+                        onCheckedChange = if (LocalXrUi.current.isXr) {
+                            { if (selectionMode) onClick() else onLongClick() }
+                        } else null,
                         enabled = enabled,
-                        modifier = Modifier.size(56.dp).semantics {
-                            contentDescription = selectDescription
-                        },
+                        modifier = if (LocalXrUi.current.isXr) {
+                            Modifier.size(56.dp).semantics { contentDescription = selectDescription }
+                        } else Modifier,
                     )
                 }
             } else null,
@@ -1119,9 +1194,10 @@ internal fun AppRow(
                     modifier = Modifier.size(56.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (app.icon != null) {
+                    val icon = rowIcon
+                    if (icon != null) {
                         Image(
-                            bitmap = app.icon,
+                            bitmap = icon,
                             contentDescription = null,
                             contentScale = ContentScale.Fit,
                             modifier = Modifier.fillMaxSize(),
@@ -1142,7 +1218,10 @@ internal fun AppRow(
                 .clip(shape)
                 .then(if (focused && enabled) Modifier.border(2.dp, colorScheme.primary, shape) else Modifier)
                 .semantics {
-                    if (selectionMode) this.selected = selected
+                    if (selectionMode) {
+                        this.selected = selected
+                        toggleableState = ToggleableState(selected)
+                    }
                 }
                 .combinedClickable(
                     enabled = enabled,

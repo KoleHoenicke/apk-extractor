@@ -20,6 +20,7 @@ Exports use at most three concurrent copies and check cancellation while copying
 
 - Native Jetpack Compose interface using Material 3 Expressive and Google Sans Flex
 - Edge-to-edge, dynamic color, light and dark appearance
+- English, Spanish, Portuguese, French, Arabic, Persian, Russian, German, Korean, and Simplified Chinese, with native Android app-language settings
 - Adaptive phone, tablet, foldable, split-screen, and desktop-window layouts
 - Live list updates when apps are installed, updated, or removed
 - Mouse hover, right-click menus, Ctrl/Cmd-click selection, and Shift-click range selection
@@ -28,6 +29,7 @@ Exports use at most three concurrent copies and check cancellation while copying
 - Multiple desktop windows with independent search, filters, and selection; export folder, sort order, progress, and recent results stay synchronized
 - Drag Material file rows showing the filename or batch count to apps that accept file drops, with matching native previews and read-only URI access
 - Open a new desktop window from the menu or with `Ctrl/Cmd+Shift+N`; one shared export session protects the export journal
+- Android MCP/AppFunctions on Android 16+: authorized assistants can search installed apps by name, package, update time, APK size, and split status, prepare a selection in the existing UI, and read export progress. The user still starts extraction with the existing Extract action. Gemini availability depends on Google's Connected Apps rollout and approval.
 - No advertisements, subscriptions, accounts, analytics, or network permission
 - No root access or broad storage permission
 - Byte-for-byte extraction that preserves the installed APK signatures
@@ -35,7 +37,7 @@ Exports use at most three concurrent copies and check cancellation while copying
 
 ## Build
 
-The project uses Android SDK 37, Android Gradle Plugin 9.4.0, Gradle 9.7.1, Kotlin 2.4.20, Compose BOM 2026.09.00, and Material 3 1.5.0-alpha28.
+The project uses Android SDK 37, Android Gradle Plugin 9.4.1, Gradle 9.7.1, Kotlin 2.4.20, Compose BOM 2026.09.00, and Material 3 1.5.0-rc01.
 
 Install JDK 17 and Android SDK 37, then run:
 
@@ -55,7 +57,9 @@ Version history and source archives are available from [GitHub Releases](https:/
 
 ## Privacy and package visibility
 
-The app does not request internet access and does not transmit or collect data. It requests `QUERY_ALL_PACKAGES` because discovering every installed app is its sole user-facing purpose and a finite `<queries>` declaration cannot describe that set. Google Play classifies the installed-app inventory as sensitive; Play distribution is subject to approval and requires an accurate Permissions Declaration Form. Approval is not guaranteed, so this permission must be reviewed again before publishing.
+The app does not request internet access and has no analytics or remote service. Authorized Android assistants can request installed-app metadata and export status through Android MCP. An assistant's processing of those responses is governed by that assistant's privacy policy. APK Extractor's assistant actions do not return APK files, folder access, or private app data, and they do not start extraction or sharing. See [the assistant integration guide](docs/assistant-integration.md) for capabilities, testing, and rollout limitations.
+
+The app requests `QUERY_ALL_PACKAGES` because discovering every installed app is its sole user-facing purpose and a finite `<queries>` declaration cannot describe that set. Google Play classifies the installed-app inventory as sensitive; Play distribution is subject to approval and requires an accurate Permissions Declaration Form. Approval is not guaranteed, so this permission must be reviewed again before publishing.
 
 ## Export limitations
 

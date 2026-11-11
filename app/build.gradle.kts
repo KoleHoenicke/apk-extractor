@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.devtools.ksp")
 }
 
 val uploadStorePath = providers.environmentVariable("APK_EXTRACTOR_UPLOAD_STORE_FILE").orNull
@@ -16,15 +17,15 @@ android {
         applicationId = "com.kolehoenicke.apkextractor"
         minSdk = 26
         targetSdk = 37
-        versionCode = 11
-        versionName = "1.0.7"
+        versionCode = 12
+        versionName = "1.0.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     androidResources {
         generateLocaleConfig = true
-        localeFilters += listOf("en", "es", "pt", "fr", "ar", "fa")
+        localeFilters += listOf("en", "es", "pt", "fr", "ar", "fa", "ru", "de", "ko", "b+zh+Hans")
     }
 
     buildFeatures {
@@ -73,12 +74,12 @@ dependencies {
 
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.compose.material3:material3:1.5.0-alpha28")
+    implementation("androidx.compose.material3:material3:1.5.0-rc01")
     implementation("androidx.compose.material3.adaptive:adaptive:1.3.0")
     // Optional spatial UI. The same APK retains its phone/tablet/desktop UI.
-    implementation("androidx.xr.runtime:runtime:1.1.0-alpha01")
-    implementation("androidx.xr.scenecore:scenecore:1.0.0-rc02")
-    implementation("androidx.xr.compose:compose:1.0.0-beta01")
+    implementation("androidx.xr.runtime:runtime:1.0.0")
+    implementation("androidx.xr.scenecore:scenecore:1.0.0")
+    implementation("androidx.xr.compose:compose:1.0.0-beta02")
     implementation("androidx.xr.compose.material3:material3:1.0.0-alpha17")
     // XR extension classes are supplied by the platform, including in minified builds.
     compileOnly("com.android.extensions.xr:extensions-xr:1.3.0")
@@ -88,6 +89,8 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.1.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
+    implementation("androidx.appfunctions:appfunctions:1.0.0-rc01")
+    ksp("androidx.appfunctions:appfunctions-compiler:1.0.0-rc01")
     implementation("com.google.android.play:review:2.0.2")
     constraints {
         implementation("androidx.fragment:fragment:1.8.9") {

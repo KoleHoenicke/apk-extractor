@@ -6,8 +6,10 @@
     <string name="more_options">Plus d’options</string>
     <string name="privacy_and_licenses">Confidentialité et licences</string>
     <string name="done">Terminé</string>
-    <string name="privacy_summary">APK Extractor consulte la liste des applis installées uniquement pour afficher celles que vous pouvez extraire. Tout le traitement se fait sur cet appareil. L’appli ne dispose pas de l’autorisation d’accès à Internet et ne collecte, ne vend ni ne partage de données. L’emplacement du dossier d’exportation, votre choix de tri et le résultat de la dernière exportation sont enregistrés localement. Les fichiers exportés sont écrits uniquement dans ce dossier.</string>
+    <string name="privacy_summary">APK Extractor ne dispose pas d’accès à Internet et n’utilise aucun outil d’analyse. Vos réglages et le dernier résultat d’exportation restent sur cet appareil. Les assistants Android autorisés peuvent accéder aux informations des applis et à l’état de l’exportation selon leurs propres règles de confidentialité. Vous contrôlez l’extraction et le partage des fichiers.</string>
     <string name="exit_selection">Quitter la sélection</string>
+    <string name="extract_action">Extraire</string>
+    <string name="close_search">Fermer la recherche</string>
     <string name="extract_selected">Extraire les applis sélectionnées</string>
     <string name="extract_app">Extraire %1$s</string>
     <string name="select_app">Sélectionner %1$s</string>
@@ -41,11 +43,6 @@
     <string name="error_open_export">Impossible d’ouvrir le fichier d’exportation.</string>
     <string name="error_start_extraction">Impossible de démarrer l’extraction.</string>
     <string name="error_unknown">Erreur inconnue</string>
-    <plurals name="app_count">
-        <item quantity="one">%d appli</item>
-        <item quantity="other">%d applis</item>
-        <item quantity="many">%d applis</item>
-    </plurals>
     <plurals name="selected_count">
         <item quantity="one">%d sélectionnée</item>
         <item quantity="other">%d sélectionnées</item>
@@ -78,10 +75,10 @@
     <string name="open_folder_unavailable">Cet appareil ne peut pas ouvrir le dossier directement. Ouvrez-le dans votre appli Fichiers.</string>
     <string name="last_export">Dernière exportation</string>
     <string name="view_result">Voir</string>
-    <plurals name="result_saved">
-        <item quantity="one">%d enregistrée</item>
-        <item quantity="other">%d enregistrées</item>
-        <item quantity="many">%d enregistrées</item>
+    <plurals name="result_extracted">
+        <item quantity="one">%d extraite</item>
+        <item quantity="other">%d extraites</item>
+        <item quantity="many">%d extraites</item>
     </plurals>
     <plurals name="result_failed">
         <item quantity="one">%d en échec</item>
@@ -107,4 +104,7 @@
         <item quantity="other">%d fichiers exportés</item>
     </plurals>
     <string name="xr_export_workspace">Espace d’exportation</string>
+    <string name="licenses">Licences</string>
+    <string name="license_notices">Crédits et mentions</string>
+    <string name="back">Retour</string>
 </resources>

@@ -26,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
@@ -61,6 +63,7 @@ internal fun selectionRange(visible: List<String>, anchor: String?, target: Stri
 internal fun AppActionButton(
     description: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
@@ -70,7 +73,8 @@ internal fun AppActionButton(
         state = rememberTooltipState(),
     ) {
         IconButton(onClick = onClick, enabled = enabled,
-            modifier = if (LocalXrUi.current.isXr) Modifier.then(Modifier.size(56.dp)) else Modifier) { content() }
+            modifier = modifier.semantics { contentDescription = description }
+                .then(if (LocalXrUi.current.isXr) Modifier.size(56.dp) else Modifier)) { content() }
     }
 }
 

@@ -20,6 +20,7 @@ import androidx.core.view.WindowCompat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.kolehoenicke.apkextractor.assistant.assistantExportToken
 import com.kolehoenicke.apkextractor.ui.ApkExtractorApp
 import com.kolehoenicke.apkextractor.ui.theme.ApkExtractorTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -44,6 +45,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) handleAssistantIntent(intent)
+        // Start the asynchronous catalog query before composing the first frame.
+        val screenViewModel = viewModel
         updateWindowCapabilities()
         if (Build.VERSION.SDK_INT >= 35) {
             // Android 15+ enforces edge-to-edge for our target SDK. Avoid the bar-color
@@ -63,7 +67,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ApkExtractorTheme {
                 ApkExtractorApp(
-                    viewModel = viewModel,
+                    viewModel = screenViewModel,
                     focusSearchRequests = focusSearchRequests,
                     onSuccessfulExtractionSession =
                         inAppReviewCoordinator::onSuccessfulExtractionSession,
@@ -71,6 +75,16 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleAssistantIntent(intent)
+    }
+
+    private fun handleAssistantIntent(intent: Intent?) {
+        assistantExportToken(intent)?.let { viewModel.reviewAssistantExport(it) }
     }
 
     override fun onKeyShortcut(keyCode: Int, event: KeyEvent): Boolean {

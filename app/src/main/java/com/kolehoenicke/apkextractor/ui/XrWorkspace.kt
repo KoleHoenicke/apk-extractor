@@ -201,10 +201,11 @@ internal fun XrAlertDialog(
     title: @Composable () -> Unit,
     text: @Composable () -> Unit,
     confirmButton: @Composable () -> Unit,
+    dismissButton: (@Composable () -> Unit)? = null,
 ) {
     if (!LocalXrUi.current.isSpatial) {
         AlertDialog(onDismissRequest = onDismissRequest, title = title, text = text,
-            confirmButton = confirmButton)
+            confirmButton = confirmButton, dismissButton = dismissButton)
         return
     }
     SpatialDialog(onDismissRequest = onDismissRequest) {
@@ -226,7 +227,10 @@ internal fun XrAlertDialog(
                     }
                 }
                 FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
-                    ProvideTextStyle(MaterialTheme.typography.labelLarge) { confirmButton() }
+                    ProvideTextStyle(MaterialTheme.typography.labelLarge) {
+                        dismissButton?.invoke()
+                        confirmButton()
+                    }
                 }
             }
         }

@@ -1,0 +1,103 @@
+<resources>
+    <string name="search_apps">Apps suchen</string>
+    <string name="clear_search">Suche löschen</string>
+    <string name="choose_folder">Exportordner auswählen</string>
+    <string name="change_folder">Exportordner ändern</string>
+    <string name="more_options">Weitere Optionen</string>
+    <string name="privacy_and_licenses">Datenschutz und Lizenzen</string>
+    <string name="done">Fertig</string>
+    <string name="privacy_summary">APK Extractor hat keinen Internetzugriff und keine Analysefunktionen. Ihre Einstellungen und das letzte Exportergebnis bleiben auf diesem Gerät. Autorisierte Android-Assistenten können App-Informationen und den Exportstatus gemäß ihren eigenen Datenschutzrichtlinien abrufen. Sie bestimmen, wann Apps extrahiert oder Dateien geteilt werden.</string>
+    <string name="exit_selection">Auswahlmodus beenden</string>
+    <string name="extract_action">Extrahieren</string>
+    <string name="close_search">Suche schließen</string>
+    <string name="extract_selected">Ausgewählte Apps extrahieren</string>
+    <string name="extract_app">%1$s extrahieren</string>
+    <string name="select_app">%1$s auswählen</string>
+    <string name="deselect_app">Auswahl von %1$s aufheben</string>
+    <string name="retry">Erneut versuchen</string>
+    <string name="user_apps">Benutzer-Apps</string>
+    <string name="system_apps">System-Apps</string>
+    <string name="all_apps">Alle</string>
+    <string name="loading_apps">Installierte Apps werden geladen</string>
+    <string name="no_apps">Keine Apps gefunden</string>
+    <string name="no_apps_detail">Ändern Sie den Suchbegriff oder den App-Filter.</string>
+    <string name="split_apk">Split-APKs · ZIP</string>
+    <string name="split_export_title">Split-APK-Export</string>
+    <string name="split_export_detail">Diese App besteht aus mehreren installierten APKs. Das gespeicherte ZIP-Archiv enthält die Basis-APK und ihre Split-APKs. Es lässt sich daher nicht durch Antippen installieren. Entpacken Sie zur Neuinstallation alle Dateien und verwenden Sie einen Split-APK-Installer, der sie zusammen installiert.</string>
+    <string name="export_complete">%1$s gespeichert</string>
+    <string name="export_failed">%1$s konnte nicht extrahiert werden</string>
+    <string name="share">Teilen</string>
+    <string name="share_apk">Extrahierte Dateien teilen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="keyboard_shortcut_search">Apps suchen</string>
+    <string name="keyboard_shortcut_dismiss">Suche schließen oder Auswahlmodus beenden</string>
+    <string name="extraction_notification_channel">APK-Extraktion</string>
+    <string name="extraction_notification_channel_description">Fortschritt beim Extrahieren von APK-Dateien</string>
+    <string name="notification_extracting_app">%1$s wird extrahiert</string>
+    <string name="notification_percent_complete">%1$d%% abgeschlossen</string>
+    <string name="notification_extraction_finished">Extraktion abgeschlossen</string>
+    <string name="error_app_no_longer_installed">Diese App ist nicht mehr installiert.</string>
+    <string name="error_loading_apps">Installierte Apps konnten nicht geladen werden.</string>
+    <string name="error_folder_unavailable">Der ausgewählte Ordner ist nicht mehr verfügbar.</string>
+    <string name="error_create_export">Im ausgewählten Ordner konnte keine Datei erstellt werden.</string>
+    <string name="error_open_export">Die exportierte Datei konnte nicht geöffnet werden.</string>
+    <string name="error_start_extraction">Die Extraktion konnte nicht gestartet werden.</string>
+    <string name="error_unknown">Unbekannter Fehler</string>
+    <plurals name="selected_count">
+        <item quantity="one">Auswahl: %d</item>
+        <item quantity="other">Auswahl: %d</item>
+    </plurals>
+    <plurals name="export_complete_count">
+        <item quantity="one">%d App gespeichert</item>
+        <item quantity="other">%d Apps gespeichert</item>
+    </plurals>
+    <plurals name="export_failed_count">
+        <item quantity="one">%d App konnte nicht extrahiert werden</item>
+        <item quantity="other">%d Apps konnten nicht extrahiert werden</item>
+    </plurals>
+    <plurals name="export_partial">
+        <item quantity="one">%1$d von %2$d App gespeichert</item>
+        <item quantity="other">%1$d von %2$d Apps gespeichert</item>
+    </plurals>
+    <plurals name="notification_extracting_apps">
+        <item quantity="one">%d App wird extrahiert</item>
+        <item quantity="other">%d Apps werden extrahiert</item>
+    </plurals>
+    <string name="folder_picker_unavailable">Die Ordnerauswahl konnte nicht geöffnet werden. Aktivieren Sie die Dateien-App des Systems und versuchen Sie es erneut.</string>
+    <string name="sharing_unavailable">Das Teilen-Menü konnte nicht geöffnet werden. Ihre extrahierten Dateien befinden sich weiterhin im ausgewählten Ordner.</string>
+    <string name="export_folder">Exportordner</string>
+    <string name="no_export_folder">Kein Ordner ausgewählt</string>
+    <string name="open_folder_unavailable">Dieses Gerät kann den Ordner nicht direkt öffnen. Öffnen Sie ihn stattdessen in Ihrer Dateien-App.</string>
+    <string name="last_export">Letzter Export</string>
+    <string name="view_result">Ansehen</string>
+    <plurals name="result_extracted">
+        <item quantity="one">%d extrahiert</item>
+        <item quantity="other">%d extrahiert</item>
+    </plurals>
+    <plurals name="result_failed">
+        <item quantity="one">%d fehlgeschlagen</item>
+        <item quantity="other">%d fehlgeschlagen</item>
+    </plurals>
+    <string name="retry_failed">Fehlgeschlagene Exporte wiederholen</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_recent">Zuletzt aktualisiert</string>
+    <string name="export_interrupted">Der Export wurde unterbrochen. Versuchen Sie es erneut.</string>
+    <string name="export_interrupted_partial">Der Export wurde unterbrochen. Im Exportordner kann eine unvollständige Datei verblieben sein. Löschen Sie sie vor einem erneuten Versuch.</string>
+    <string name="export_failed_partial">Der Export ist fehlgeschlagen. Im Exportordner kann eine unvollständige Datei verblieben sein. Löschen Sie sie vor einem erneuten Versuch.</string>
+    <string name="sort_by">Sortieren nach</string>
+    <string name="export_success_title">Export abgeschlossen</string>
+    <string name="open_folder_action">Ordner öffnen</string>
+    <string name="change_folder_action">Ändern</string>
+    <string name="keyboard_shortcut_select_all">Alle sichtbaren Apps auswählen</string>
+    <string name="keyboard_shortcut_toggle">Fokussierte App auswählen oder Auswahl aufheben</string>
+    <string name="keyboard_shortcut_menu">App-Aktionen öffnen</string>
+    <string name="new_window">Neues Fenster</string>
+    <plurals name="exported_files">
+        <item quantity="one">%d exportierte Datei</item>
+        <item quantity="other">%d exportierte Dateien</item>
+    </plurals>
+    <string name="xr_export_workspace">Exportbereich</string>
+    <string name="licenses">Lizenzen</string>
+    <string name="license_notices">Hinweise und Quellen</string>
+    <string name="back">Zurück</string>
+</resources>
