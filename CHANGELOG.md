@@ -2,6 +2,10 @@
 
 Notable changes to APK Extractor are documented here.
 
+## Unreleased
+
+- Update Gradle to 9.8.2, Android Gradle Plugin to 9.5.1, Kotlin Compose to 2.4.21, AndroidX Core to 1.19.1, and Fragment to 1.9.1. Retain XR Runtime and SceneCore 1.0.0 stable.
+
 ## 1.0.8
 
 - Load the installed-app list faster with a bulk package query and load icons as their rows appear.

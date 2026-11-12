@@ -37,7 +37,7 @@ Exports use at most three concurrent copies and check cancellation while copying
 
 ## Build
 
-The project uses Android SDK 37, Android Gradle Plugin 9.4.1, Gradle 9.7.1, Kotlin 2.4.20, Compose BOM 2026.09.00, and Material 3 1.5.0-rc01.
+The project uses Android SDK 37, Android Gradle Plugin 9.5.1, Gradle 9.8.2, Kotlin 2.4.21, Compose BOM 2026.09.00, and Material 3 1.5.0-rc01.
 
 Install JDK 17 and Android SDK 37, then run:
 
