@@ -79,8 +79,8 @@ dependencies {
     // Optional spatial UI. The same APK retains its phone/tablet/desktop UI.
     implementation("androidx.xr.runtime:runtime:1.0.0")
     implementation("androidx.xr.scenecore:scenecore:1.0.0")
-    implementation("androidx.xr.compose:compose:1.0.0-beta02")
-    implementation("androidx.xr.compose.material3:material3:1.0.0-alpha17")
+    implementation("androidx.xr.compose:compose:1.0.0-rc01")
+    implementation("androidx.xr.compose.material3:material3:1.0.0-alpha18")
     // XR extension classes are supplied by the platform, including in minified builds.
     compileOnly("com.android.extensions.xr:extensions-xr:1.3.0")
     implementation("androidx.compose.ui:ui")
@@ -89,8 +89,8 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.1.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
-    implementation("androidx.appfunctions:appfunctions:1.0.0-rc01")
-    ksp("androidx.appfunctions:appfunctions-compiler:1.0.0-rc01")
+    implementation("androidx.appfunctions:appfunctions:1.0.0")
+    ksp("androidx.appfunctions:appfunctions-compiler:1.0.0")
     implementation("com.google.android.play:review:2.0.2")
     constraints {
         implementation("androidx.fragment:fragment:1.9.1") {
